@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Payment — NestFind</title>
+  <link rel="stylesheet" href="style.css"/>
+  <style>
+    /* ===== PAYMENT PAGE ===== */
+    .payment-page {
+      background: var(--bg);
+      min-height: calc(100vh - 60px);
+      padding: 32px 0 56px;
+    }
+    .payment-layout {
+      display: grid;
+      grid-template-columns: 1fr 380px;
+      gap: 28px;
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+    .pay-card {
+      background: var(--white);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-md);
+      border: 1px solid var(--border-light);
+      overflow: hidden;
+    }
+    .pay-card-head {
+      padding: 22px 28px 18px;
+      border-bottom: 1px solid var(--border-light);
+    }
+    .pay-card-head h2 {
+      font-size: 17px;
+      font-weight: 800;
+      color: var(--text);
+    }
+    .pay-card-head p {
+      font-size: 12.5px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+    .pay-card-body { padding: 24px 28px 28px; }
+
+    /* Payment method tabs */
+    .pay-tabs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 26px;
+    }
+    .pay-tab {
+      border: 2px solid var(--border);
+      border-radius: 9px;
+      padding: 14px 16px;
+      cursor: pointer;
+      transition: all 0.18s ease;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: #fafbfa;
+    }
+    .pay-tab:hover { border-color: var(--primary); }
+    .pay-tab.selected { border-color: var(--primary); background: var(--primary-light); }
+    .pay-tab input[type="radio"] { accent-color: var(--primary); width: 16px; height: 16px; flex-shrink: 0; }
+    .tab-icon { font-size: 26px; flex-shrink: 0; }
+    .tab-label { font-size: 13.5px; font-weight: 700; color: var(--text); }
+    .tab-sub { font-size: 11.5px; color: var(--text-muted); margin-top: 1px; }
+
+    /* UPI Section */
+    .upi-section, .card-section { display: none; }
+    .upi-section.active, .card-section.active { display: block; }
+
+    .upi-options { display: flex; flex-direction: column; gap: 10px; margin-bottom: 18px; }
+    .upi-option {
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      padding: 13px 16px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      cursor: pointer;
+      transition: all 0.18s;
+      background: #fafbfa;
+    }
+    .upi-option:hover { border-color: var(--primary); background: var(--primary-light); }
+    .upi-option.selected { border-color: var(--primary); background: var(--primary-light); }
+    .upi-option input[type="radio"] { accent-color: var(--primary); width: 15px; height: 15px; flex-shrink: 0; }
+    .upi-logo { font-size: 28px; flex-shrink: 0; }
+    .upi-name { font-size: 13.5px; font-weight: 700; }
+    .upi-desc { font-size: 11.5px; color: var(--text-muted); margin-top: 1px; }
+
+    .upi-divider {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 14px 0;
+    }
+    .upi-divider::before, .upi-divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+    .upi-divider span { font-size: 11.5px; color: var(--text-muted); font-weight: 600; white-space: nowrap; }
+
+    /* Card form */
+    .card-preview {
+      background: linear-gradient(135deg, #1a4d33 0%, #1a6b4a 60%, #22925f 100%);
+      border-radius: 12px;
+      padding: 22px 24px;
+      margin-bottom: 22px;
+      color: #fff;
+      position: relative;
+      overflow: hidden;
+      min-height: 120px;
+    }
+    .card-preview::before {
+      content: '';
+      position: absolute;
+      top: -30px; right: -30px;
+      width: 120px; height: 120px;
+      background: rgba(255,255,255,0.07);
+      border-radius: 50%;
+    }
+    .card-preview::after {
+      content: '';
+      position: absolute;
+      bottom: -40px; left: 20px;
+      width: 160px; height: 160px;
+      background: rgba(255,255,255,0.04);
+      border-radius: 50%;
+    }
+    .card-chip { font-size: 22px; margin-bottom: 12px; }
+    .card-number-display { font-size: 17px; font-weight: 700; letter-spacing: 3px; margin-bottom: 14px; color: rgba(255,255,255,0.95); font-family: monospace; }
+    .card-bottom { display: flex; justify-content: space-between; align-items: flex-end; }
+    .card-holder-label { font-size: 9px; text-transform: uppercase; letter-spacing: 1px; color: rgba(255,255,255,0.55); margin-bottom: 2px; }
+    .card-holder-name { font-size: 13px; font-weight: 700; color: #fff; text-transform: uppercase; letter-spacing: 1px; }
+    .card-expiry-label { font-size: 9px; text-transform: uppercase; letter-spacing: 1px; color: rgba(255,255,255,0.55); margin-bottom: 2px; }
+    .card-expiry-val { font-size: 13px; font-weight: 700; color: #fff; }
+    .card-brand { font-size: 22px; }
+
+    /* Secure badge */
+    .secure-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--primary-light);
+      border: 1px solid #b2d4c4;
+      border-radius: 7px;
+      padding: 9px 14px;
+      margin-bottom: 18px;
+      font-size: 12.5px;
+      color: var(--primary);
+      font-weight: 600;
+    }
+
+    /* ===== ORDER SUMMARY ===== */
+    .order-summary {
+      position: sticky;
+      top: 80px;
+    }
+    .prop-summary-img {
+      height: 160px;
+      background: linear-gradient(135deg, #b2d4c4, #d6eae0);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 64px;
+    }
+    .prop-summary-info { padding: 20px; }
+    .prop-summary-badge {
+      display: inline-block;
+      background: var(--primary-light);
+      color: var(--primary);
+      font-size: 10.5px;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 4px;
+      margin-bottom: 10px;
+    }
+    .prop-summary-title { font-size: 15px; font-weight: 800; margin-bottom: 4px; line-height: 1.3; }
+    .prop-summary-loc { font-size: 12.5px; color: var(--text-muted); margin-bottom: 14px; }
+    .prop-summary-meta { display: flex; gap: 14px; padding: 12px 0; border-top: 1px solid var(--border-light); border-bottom: 1px solid var(--border-light); margin-bottom: 16px; }
+    .prop-summary-meta span { font-size: 12px; color: var(--text-2); font-weight: 500; }
+
+    .price-breakdown { display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; }
+    .price-row { display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: var(--text-2); }
+    .price-row.total { font-weight: 800; font-size: 15px; color: var(--text); padding-top: 10px; border-top: 1px solid var(--border); }
+    .price-row .val { font-weight: 600; }
+    .price-row.total .val { color: var(--primary); font-size: 17px; }
+
+    .trust-row { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border-light); }
+    .trust-item { display: flex; align-items: center; gap: 5px; font-size: 11.5px; color: var(--text-muted); font-weight: 500; }
+
+    /* Pay button */
+    .btn-pay {
+      width: 100%;
+      background: var(--primary);
+      color: #fff;
+      font-weight: 800;
+      font-size: 16px;
+      padding: 15px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      transition: all 0.22s;
+      letter-spacing: 0.3px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+    .btn-pay:hover { background: var(--primary-dark); transform: translateY(-1px); box-shadow: 0 6px 18px rgba(26,107,74,0.28); }
+    .btn-pay:active { transform: translateY(0); }
+
+    @media (max-width: 780px) {
+      .payment-layout { grid-template-columns: 1fr; }
+      .order-summary { position: static; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="nav-inner">
+    <a href="index.html" class="logo">
+      <span class="logo-icon">🏡</span>
+      Nest<span>Find</span>
+    </a>
+    <div class="nav-links">
+      <a href="index.html" class="nav-link">Home</a>
+      <a href="buy.html" class="nav-link active">Buy</a>
+      <a href="rent.html" class="nav-link">Rent</a>
+      <a href="sell.html" class="nav-link">Sell</a>
+      <a href="about.html" class="nav-link">About</a>
+    </div>
+    <div class="nav-actions">
+      <a href="login.html" class="btn-outline">Login</a>
+      <a href="signup.html" class="btn-primary">Sign Up</a>
+    </div>
+  </div>
+</nav>
+
+<!-- PAYMENT PAGE -->
+<div class="payment-page">
+  <div class="payment-layout">
+
+    <!-- LEFT: PAYMENT FORM -->
+    <div>
+
+      <!-- STEP INDICATOR -->
+      <div style="display:flex; align-items:center; gap:8px; margin-bottom:22px;">
+        <div style="display:flex; align-items:center; gap:6px; font-size:13px; color:var(--text-muted);">
+          <span style="width:22px; height:22px; background:#ddd; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; color:#888;">1</span>
+          Property
+        </div>
+        <span style="color:#ccc; font-size:16px;">›</span>
+        <div style="display:flex; align-items:center; gap:6px; font-size:13px; color:var(--text-muted);">
+          <span style="width:22px; height:22px; background:#ddd; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; color:#888;">2</span>
+          Details
+        </div>
+        <span style="color:#ccc; font-size:16px;">›</span>
+        <div style="display:flex; align-items:center; gap:6px; font-size:13.5px; color:var(--primary); font-weight:700;">
+          <span style="width:22px; height:22px; background:var(--primary); border-radius:50%; display:inline-flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; color:#fff;">3</span>
+          Payment
+        </div>
+        <span style="color:#ccc; font-size:16px;">›</span>
+        <div style="display:flex; align-items:center; gap:6px; font-size:13px; color:var(--text-muted);">
+          <span style="width:22px; height:22px; background:#ddd; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; color:#888;">4</span>
+          Confirmed
+        </div>
+      </div>
+
+      <!-- PAYMENT METHOD CARD -->
+      <div class="pay-card" style="margin-bottom:20px;">
+        <div class="pay-card-head">
+          <h2>💳 Choose Payment Method</h2>
+          <p>All transactions are 256-bit SSL encrypted and RBI compliant</p>
+        </div>
+        <div class="pay-card-body">
+
+          <div class="pay-tabs">
+            <label class="pay-tab selected" id="tabUPI" onclick="switchTab('upi')">
+              <input type="radio" name="paymethod" value="upi" checked/>
+              <span class="tab-icon">📲</span>
+              <div>
+                <div class="tab-label">UPI</div>
+                <div class="tab-sub">GPay, PhonePe, Paytm &amp; more</div>
+              </div>
+            </label>
+            <label class="pay-tab" id="tabCard" onclick="switchTab('card')">
+              <input type="radio" name="paymethod" value="card"/>
+              <span class="tab-icon">💳</span>
+              <div>
+                <div class="tab-label">Credit / Debit Card</div>
+                <div class="tab-sub">Visa, Mastercard, RuPay</div>
+              </div>
+            </label>
+          </div>
+
+          <!-- UPI SECTION -->
+          <div class="upi-section active" id="upiSection">
+            <div class="upi-options">
+              <label class="upi-option selected" onclick="selectUpiOption(this)">
+                <input type="radio" name="upiapp" value="gpay" checked/>
+                <span class="upi-logo">🟢</span>
+                <div>
+                  <div class="upi-name">Google Pay</div>
+                  <div class="upi-desc">Pay via your Google account</div>
+                </div>
+              </label>
+              <label class="upi-option" onclick="selectUpiOption(this)">
+                <input type="radio" name="upiapp" value="phonepe"/>
+                <span class="upi-logo">💜</span>
+                <div>
+                  <div class="upi-name">PhonePe</div>
+                  <div class="upi-desc">India's most used UPI app</div>
+                </div>
+              </label>
+              <label class="upi-option" onclick="selectUpiOption(this)">
+                <input type="radio" name="upiapp" value="paytm"/>
+                <span class="upi-logo">🔵</span>
+                <div>
+                  <div class="upi-name">Paytm</div>
+                  <div class="upi-desc">Pay using Paytm UPI</div>
+                </div>
+              </label>
+              <label class="upi-option" onclick="selectUpiOption(this)">
+                <input type="radio" name="upiapp" value="bhim"/>
+                <span class="upi-logo">🇮🇳</span>
+                <div>
+                  <div class="upi-name">BHIM UPI</div>
+                  <div class="upi-desc">Government of India UPI app</div>
+                </div>
+              </label>
+            </div>
+
+            <div class="upi-divider"><span>or enter UPI ID manually</span></div>
+
+            <div class="fg">
+              <label>UPI ID</label>
+              <div class="icw">
+                <span class="ic">@</span>
+                <input class="fc" type="text" id="upiId" placeholder="yourname@upi" oninput="updateUpiId(this.value)"/>
+              </div>
+              <div style="font-size:12px; color:var(--text-muted); margin-top:5px;">Example: 9876543210@paytm · name@okicici · name@ybl</div>
+            </div>
+          </div>
+
+          <!-- CARD SECTION -->
+          <div class="card-section" id="cardSection">
+            <!-- Live card preview -->
+            <div class="card-preview">
+              <div class="card-chip">💳</div>
+              <div class="card-number-display" id="cardNumDisplay">•••• •••• •••• ••••</div>
+              <div class="card-bottom">
+                <div>
+                  <div class="card-holder-label">Card Holder</div>
+                  <div class="card-holder-name" id="cardNameDisplay">YOUR NAME</div>
+                </div>
+                <div>
+                  <div class="card-expiry-label">Expires</div>
+                  <div class="card-expiry-val" id="cardExpDisplay">MM/YY</div>
+                </div>
+                <div class="card-brand" id="cardBrandIcon">💳</div>
+              </div>
+            </div>
+
+            <div class="fg">
+              <label>Card Number *</label>
+              <div class="icw">
+                <span class="ic">💳</span>
+                <input class="fc" type="text" maxlength="19" placeholder="1234 5678 9012 3456" oninput="formatCard(this)" id="cardNum"/>
+              </div>
+            </div>
+            <div class="fg">
+              <label>Cardholder Name *</label>
+              <div class="icw">
+                <span class="ic">👤</span>
+                <input class="fc" type="text" placeholder="Name as on card" oninput="document.getElementById('cardNameDisplay').textContent = this.value.toUpperCase() || 'YOUR NAME'" id="cardName"/>
+              </div>
+            </div>
+            <div class="frow">
+              <div class="fg">
+                <label>Expiry Date *</label>
+                <input class="fc" type="text" maxlength="5" placeholder="MM/YY" oninput="formatExpiry(this)" id="cardExp"/>
+              </div>
+              <div class="fg">
+                <label>CVV *</label>
+                <div class="icw">
+                  <span class="ic">🔒</span>
+                  <input class="fc" type="password" maxlength="4" placeholder="•••" id="cardCvv"/>
+                </div>
+              </div>
+            </div>
+            <div class="fg">
+              <label class="fcheck">
+                <input type="checkbox" checked/>
+                Save this card securely for faster payments
+              </label>
+            </div>
+          </div>
+
+          <div class="secure-badge">
+            <span>🔒</span> Your payment is secured with 256-bit SSL encryption &amp; 3D Secure
+          </div>
+
+          <button class="btn-pay" onclick="processPayment()">
+            <span>🔐</span>
+            <span id="payBtnText">Pay ₹85,00,000 Securely</span>
+          </button>
+
+          <!-- Payment logos -->
+          <div style="display:flex; justify-content:center; align-items:center; gap:10px; flex-wrap:wrap; margin-top:14px;">
+            <span style="font-size:11px; color:var(--text-muted);">Accepted:</span>
+            <span style="font-size:12px; font-weight:700; color:#1a1f71; padding:3px 8px; border:1px solid #ddd; border-radius:4px;">VISA</span>
+            <span style="font-size:12px; font-weight:700; color:#eb001b; padding:3px 8px; border:1px solid #ddd; border-radius:4px;">MC</span>
+            <span style="font-size:12px; font-weight:700; color:#007dc5; padding:3px 8px; border:1px solid #ddd; border-radius:4px;">RuPay</span>
+            <span style="font-size:12px; font-weight:700; color:#4285f4; padding:3px 8px; border:1px solid #ddd; border-radius:4px;">GPay</span>
+            <span style="font-size:12px; font-weight:700; color:#5f259f; padding:3px 8px; border:1px solid #ddd; border-radius:4px;">PhonePe</span>
+            <span style="font-size:12px; font-weight:700; color:#00baf2; padding:3px 8px; border:1px solid #ddd; border-radius:4px;">Paytm</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- BUYER DETAILS -->
+      <div class="pay-card">
+        <div class="pay-card-head">
+          <h2>👤 Buyer Details</h2>
+          <p>These details will appear on your booking confirmation</p>
+        </div>
+        <div class="pay-card-body">
+          <div class="frow">
+            <div class="fg">
+              <label>Full Name *</label>
+              <div class="icw"><span class="ic">👤</span><input class="fc" type="text" placeholder="Your full name" required/></div>
+            </div>
+            <div class="fg">
+              <label>Mobile *</label>
+              <div class="icw"><span class="ic">📱</span><input class="fc" type="tel" placeholder="10-digit number" required/></div>
+            </div>
+          </div>
+          <div class="fg">
+            <label>Email Address *</label>
+            <div class="icw"><span class="ic">📧</span><input class="fc" type="email" placeholder="your@email.com" required/></div>
+          </div>
+          <div class="fg">
+            <label>PAN Number (for property transaction) *</label>
+            <div class="icw"><span class="ic">🪪</span><input class="fc" type="text" maxlength="10" placeholder="ABCDE1234F" style="text-transform:uppercase;" required/></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: ORDER SUMMARY -->
+    <div class="order-summary">
+      <div class="pay-card">
+        <div class="prop-summary-img">🏢</div>
+        <div class="prop-summary-info">
+          <div class="prop-summary-badge">For Sale · Verified ✅</div>
+          <div class="prop-summary-title">Luxury 3 BHK Apartment in Bandra West</div>
+          <div class="prop-summary-loc">📍 Bandra West, Mumbai · 1.2 km from station</div>
+          <div class="prop-summary-meta">
+            <span>🛏 3 BHK</span>
+            <span>🛁 2 Bath</span>
+            <span>📐 1,450 sqft</span>
+          </div>
+          <div class="price-breakdown">
+            <div class="price-row"><span>Property Price</span><span class="val">₹85,00,000</span></div>
+            <div class="price-row"><span>Registration Charges</span><span class="val">₹1,10,000</span></div>
+            <div class="price-row"><span>Stamp Duty (1.5%)</span><span class="val">₹1,27,500</span></div>
+            <div class="price-row"><span>NestFind Service Fee</span><span class="val">₹12,500</span></div>
+            <div class="price-row total"><span>Total Payable</span><span class="val">₹87,50,000</span></div>
+          </div>
+          <div class="trust-row">
+            <div class="trust-item">🔒 Secure Payment</div>
+            <div class="trust-item">✅ RERA Registered</div>
+            <div class="trust-item">🛡️ Buyer Protected</div>
+            <div class="trust-item">📑 Legal Verified</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="background:var(--primary-light); border:1px solid #b2d4c4; border-radius:var(--radius); padding:16px 18px; margin-top:16px;">
+        <div style="font-size:13px; font-weight:700; color:var(--primary); margin-bottom:8px;">🏦 Need a Home Loan?</div>
+        <p style="font-size:12.5px; color:var(--text-2); line-height:1.6;">Get pre-approved for a home loan in 30 minutes. Compare rates from 20+ banks starting at 8.5% p.a.</p>
+        <a href="#" style="display:block; text-align:center; margin-top:12px; padding:9px; background:var(--primary); color:#fff; border-radius:6px; font-size:13px; font-weight:700;">Check Loan Eligibility</a>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- PAYMENT PROCESSING OVERLAY -->
+<div id="processingOverlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:999; align-items:center; justify-content:center;">
+  <div style="background:#fff; border-radius:16px; padding:48px 40px; text-align:center; max-width:400px; width:90%; box-shadow:0 24px 60px rgba(0,0,0,0.2);">
+    <div id="processingSpinner" style="font-size:48px; margin-bottom:18px; animation: spin 1s linear infinite; display:inline-block;">⏳</div>
+    <h3 style="font-size:20px; font-weight:800; margin-bottom:8px;" id="processingTitle">Processing Payment…</h3>
+    <p style="font-size:13.5px; color:var(--text-muted);" id="processingText">Please do not close this window or press back.</p>
+    <div style="margin-top:20px; height:6px; background:#e8ede9; border-radius:4px; overflow:hidden;">
+      <div id="progressBar" style="height:100%; background:var(--primary); width:0%; transition:width 0.3s ease; border-radius:4px;"></div>
+    </div>
+  </div>
+</div>
+
+<style>
+@keyframes spin { from {transform:rotate(0deg)} to {transform:rotate(360deg)} }
+</style>
+
+<script>
+  function switchTab(type) {
+    const tabUPI = document.getElementById('tabUPI');
+    const tabCard = document.getElementById('tabCard');
+    const upiSection = document.getElementById('upiSection');
+    const cardSection = document.getElementById('cardSection');
+    if (type === 'upi') {
+      tabUPI.classList.add('selected');
+      tabCard.classList.remove('selected');
+      upiSection.classList.add('active');
+      cardSection.classList.remove('active');
+    } else {
+      tabCard.classList.add('selected');
+      tabUPI.classList.remove('selected');
+      cardSection.classList.add('active');
+      upiSection.classList.remove('active');
+    }
+  }
+
+  function selectUpiOption(el) {
+    document.querySelectorAll('.upi-option').forEach(o => o.classList.remove('selected'));
+    el.classList.add('selected');
+  }
+
+  function updateUpiId(val) {
+    // just tracks the field
+  }
+
+  function formatCard(input) {
+    let val = input.value.replace(/\D/g, '').substring(0, 16);
+    val = val.replace(/(.{4})/g, '$1 ').trim();
+    input.value = val;
+    const raw = val.replace(/\s/g,'');
+    const masked = (raw.substring(0,4) + ' ' + (raw.length>4?raw.substring(4,8):'    ') + ' •••• ' + (raw.length>12?raw.substring(12,16):'••••')).trim();
+    document.getElementById('cardNumDisplay').textContent = masked || '•••• •••• •••• ••••';
+    // Brand detection
+    const brands = {'4':'VISA','5':'MC','6':'RuPay','3':'AMEX'};
+    const brand = brands[raw[0]] || '';
+    const icons = {'VISA':'🔵','MC':'🔴','RuPay':'🟠','AMEX':'🟦','':'💳'};
+    document.getElementById('cardBrandIcon').textContent = icons[brand] || '💳';
+  }
+
+  function formatExpiry(input) {
+    let val = input.value.replace(/\D/g,'');
+    if (val.length > 2) val = val.substring(0,2) + '/' + val.substring(2,4);
+    input.value = val;
+    document.getElementById('cardExpDisplay').textContent = val || 'MM/YY';
+  }
+
+  function processPayment() {
+    const overlay = document.getElementById('processingOverlay');
+    const bar = document.getElementById('progressBar');
+    const spinner = document.getElementById('processingSpinner');
+    const title = document.getElementById('processingTitle');
+    const text = document.getElementById('processingText');
+    overlay.style.display = 'flex';
+    let progress = 0;
+    const steps = [
+      { pct: 25, delay: 600, icon: '⏳', t: 'Verifying Details…', sub: 'Checking your payment information.' },
+      { pct: 55, delay: 1400, icon: '🔐', t: 'Securing Transaction…', sub: 'Encrypting your data with 256-bit SSL.' },
+      { pct: 80, delay: 2200, icon: '🏦', t: 'Contacting Bank…', sub: 'Awaiting authorization from your bank.' },
+      { pct: 100, delay: 3200, icon: '✅', t: 'Payment Successful!', sub: 'Redirecting to your confirmation…' },
+    ];
+    steps.forEach(s => {
+      setTimeout(() => {
+        bar.style.width = s.pct + '%';
+        spinner.textContent = s.icon;
+        title.textContent = s.t;
+        text.textContent = s.sub;
+        if (s.pct < 100) spinner.style.animation = 'spin 1s linear infinite';
+        else spinner.style.animation = 'none';
+      }, s.delay);
+    });
+    setTimeout(() => {
+      overlay.style.display = 'none';
+      window.location.href = 'confirmation.html';
+    }, 4200);
+  }
+</script>
+
+</body>
+</html>
