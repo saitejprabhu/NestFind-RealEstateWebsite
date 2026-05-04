@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Booking Confirmed — NestFind</title>
+  <link rel="stylesheet" href="style.css"/>
+  <style>
+    .confirm-page {
+      min-height: calc(100vh - 60px);
+      background: var(--bg);
+      padding: 48px 24px 64px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+    }
+    .confirm-wrap {
+      max-width: 760px;
+      width: 100%;
+    }
+
+    /* Success header */
+    .success-card {
+      background: var(--white);
+      border-radius: 16px;
+      box-shadow: var(--shadow-lg);
+      border: 1px solid var(--border-light);
+      overflow: hidden;
+      margin-bottom: 22px;
+    }
+    .success-banner {
+      background: linear-gradient(120deg, #0a3d27 0%, #1a6b4a 100%);
+      padding: 48px 40px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .success-banner::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    }
+    .tick-circle {
+      width: 80px;
+      height: 80px;
+      background: rgba(255,255,255,0.15);
+      border: 3px solid rgba(255,255,255,0.4);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 36px;
+      margin: 0 auto 20px;
+      position: relative;
+      z-index: 1;
+      animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
+    }
+    @keyframes popIn {
+      0% { transform: scale(0); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    .success-banner h1 {
+      font-size: 30px;
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: 8px;
+      position: relative;
+      z-index: 1;
+    }
+    .success-banner p {
+      font-size: 14.5px;
+      color: rgba(255,255,255,0.78);
+      position: relative;
+      z-index: 1;
+    }
+    .booking-id-badge {
+      display: inline-block;
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.3);
+      color: #fff;
+      font-size: 13px;
+      font-weight: 700;
+      padding: 6px 18px;
+      border-radius: 20px;
+      margin-top: 14px;
+      position: relative;
+      z-index: 1;
+      letter-spacing: 0.5px;
+    }
+
+    /* Property detail in confirmation */
+    .confirm-prop {
+      display: flex;
+      gap: 20px;
+      align-items: center;
+      padding: 22px 28px;
+      border-bottom: 1px solid var(--border-light);
+    }
+    .confirm-prop-img {
+      width: 100px;
+      height: 80px;
+      background: linear-gradient(135deg, #b2d4c4, #d6eae0);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 38px;
+      flex-shrink: 0;
+    }
+    .confirm-prop-info h3 { font-size: 16px; font-weight: 800; margin-bottom: 3px; }
+    .confirm-prop-info .loc { font-size: 12.5px; color: var(--text-muted); margin-bottom: 8px; }
+    .confirm-prop-info .badges { display: flex; gap: 8px; flex-wrap: wrap; }
+    .cbadge {
+      background: var(--primary-light);
+      color: var(--primary);
+      font-size: 11.5px;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 4px;
+    }
+
+    /* Details grid */
+    .confirm-details { padding: 24px 28px; }
+    .confirm-details h3 {
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--text);
+      margin-bottom: 16px;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      font-size: 11.5px;
+      color: var(--text-muted);
+    }
+    .details-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .detail-cell {
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--border);
+      border-right: 1px solid var(--border);
+    }
+    .detail-cell:nth-child(even) { border-right: none; }
+    .detail-cell:nth-last-child(-n+2) { border-bottom: none; }
+    .detail-cell .dk { font-size: 11px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 4px; }
+    .detail-cell .dv { font-size: 13.5px; font-weight: 700; color: var(--text); }
+    .detail-cell .dv.green { color: var(--primary); }
+    .detail-cell .dv.amount { font-size: 16px; color: var(--primary); }
+
+    /* Payment breakdown */
+    .confirm-payment { padding: 20px 28px 24px; border-top: 1px solid var(--border-light); }
+    .confirm-payment h3 { font-size: 11.5px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 14px; }
+    .pay-row { display: flex; justify-content: space-between; font-size: 13px; color: var(--text-2); padding: 6px 0; }
+    .pay-row.total { font-weight: 800; font-size: 15px; color: var(--text); border-top: 1px solid var(--border); margin-top: 6px; padding-top: 12px; }
+    .pay-row.total span:last-child { color: var(--primary); }
+
+    /* Action buttons */
+    .confirm-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 22px;
+    }
+    .action-btn {
+      background: var(--white);
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      padding: 18px 16px;
+      text-align: center;
+      cursor: pointer;
+      transition: var(--t);
+      display: block;
+      text-decoration: none;
+      color: var(--text);
+    }
+    .action-btn:hover { border-color: var(--primary); background: var(--primary-light); }
+    .action-btn .aico { font-size: 26px; margin-bottom: 8px; }
+    .action-btn h4 { font-size: 13.5px; font-weight: 700; margin-bottom: 3px; }
+    .action-btn p { font-size: 12px; color: var(--text-muted); }
+
+    /* What's next */
+    .whats-next {
+      background: var(--white);
+      border-radius: 12px;
+      border: 1px solid var(--border-light);
+      box-shadow: var(--shadow-sm);
+      padding: 24px 28px;
+    }
+    .whats-next h2 { font-size: 16px; font-weight: 800; margin-bottom: 20px; }
+    .next-step {
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--border-light);
+    }
+    .next-step:last-child { border-bottom: none; padding-bottom: 0; }
+    .step-num {
+      width: 32px;
+      height: 32px;
+      background: var(--primary);
+      color: #fff;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 800;
+      flex-shrink: 0;
+    }
+    .step-text h4 { font-size: 13.5px; font-weight: 700; margin-bottom: 3px; }
+    .step-text p { font-size: 12.5px; color: var(--text-muted); line-height: 1.6; }
+
+    @media (max-width: 600px) {
+      .confirm-actions { grid-template-columns: 1fr; }
+      .details-grid { grid-template-columns: 1fr; }
+      .detail-cell:nth-child(even) { border-right: 1px solid var(--border); }
+      .detail-cell:nth-last-child(-n+2) { border-bottom: 1px solid var(--border); }
+      .detail-cell:last-child { border-bottom: none; }
+      .success-banner { padding: 36px 20px; }
+      .confirm-prop { flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="nav-inner">
+    <a href="index.html" class="logo">
+      <span class="logo-icon">🏡</span>
+      Nest<span>Find</span>
+    </a>
+    <div class="nav-links">
+      <a href="index.html" class="nav-link">Home</a>
+      <a href="buy.html" class="nav-link">Buy</a>
+      <a href="rent.html" class="nav-link">Rent</a>
+      <a href="sell.html" class="nav-link">Sell</a>
+      <a href="about.html" class="nav-link">About</a>
+    </div>
+    <div class="nav-actions">
+      <a href="login.html" class="btn-outline">Login</a>
+      <a href="signup.html" class="btn-primary">Sign Up</a>
+    </div>
+  </div>
+</nav>
+
+<div class="confirm-page">
+  <div class="confirm-wrap">
+
+    <!-- SUCCESS HEADER CARD -->
+    <div class="success-card">
+      <div class="success-banner">
+        <div class="tick-circle">✅</div>
+        <h1>Booking Confirmed!</h1>
+        <p>Your payment was successful. Congratulations on your new home! 🎉</p>
+        <div class="booking-id-badge">Booking ID: NF-2025-BOM-84920</div>
+      </div>
+
+      <!-- PROPERTY SUMMARY -->
+      <div class="confirm-prop">
+        <div class="confirm-prop-img">🏢</div>
+        <div class="confirm-prop-info">
+          <h3>Luxury 3 BHK Apartment in Bandra West</h3>
+          <div class="loc">📍 Bandra West, Mumbai · 1.2 km from station</div>
+          <div class="badges">
+            <span class="cbadge">✅ Verified</span>
+            <span class="cbadge">📑 RERA Registered</span>
+            <span class="cbadge">🛡️ Buyer Protected</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- BOOKING DETAILS GRID -->
+      <div class="confirm-details">
+        <h3>Booking Information</h3>
+        <div class="details-grid">
+          <div class="detail-cell">
+            <div class="dk">Booking Date</div>
+            <div class="dv">28 March 2025</div>
+          </div>
+          <div class="detail-cell">
+            <div class="dk">Booking Time</div>
+            <div class="dv">11:42 AM IST</div>
+          </div>
+          <div class="detail-cell">
+            <div class="dk">Payment Method</div>
+            <div class="dv">UPI — Google Pay</div>
+          </div>
+          <div class="detail-cell">
+            <div class="dk">Transaction ID</div>
+            <div class="dv">TXN8294750183</div>
+          </div>
+          <div class="detail-cell">
+            <div class="dk">Payment Status</div>
+            <div class="dv green">✅ Successful</div>
+          </div>
+          <div class="detail-cell">
+            <div class="dk">Possession Date</div>
+            <div class="dv">Ready to Move</div>
+          </div>
+          <div class="detail-cell">
+            <div class="dk">Buyer Name</div>
+            <div class="dv">Rahul Sharma</div>
+          </div>
+          <div class="detail-cell">
+            <div class="dk">Contact</div>
+            <div class="dv">rahul@example.com</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PAYMENT BREAKDOWN -->
+      <div class="confirm-payment">
+        <h3>Payment Summary</h3>
+        <div class="pay-row"><span>Property Price</span><span>₹85,00,000</span></div>
+        <div class="pay-row"><span>Registration Charges</span><span>₹1,10,000</span></div>
+        <div class="pay-row"><span>Stamp Duty (1.5%)</span><span>₹1,27,500</span></div>
+        <div class="pay-row"><span>NestFind Service Fee</span><span>₹12,500</span></div>
+        <div class="pay-row total"><span>Total Paid</span><span>₹87,50,000</span></div>
+      </div>
+    </div>
+
+    <!-- ACTION BUTTONS -->
+    <div class="confirm-actions">
+      <a href="#" class="action-btn" onclick="window.print(); return false;">
+        <div class="aico">🖨️</div>
+        <h4>Download Receipt</h4>
+        <p>Save or print your payment receipt</p>
+      </a>
+      <a href="#" class="action-btn">
+        <div class="aico">📧</div>
+        <h4>Email Confirmation</h4>
+        <p>Resend to rahul@example.com</p>
+      </a>
+      <a href="#" class="action-btn">
+        <div class="aico">📅</div>
+        <h4>Schedule Site Visit</h4>
+        <p>Book a guided tour of your new property</p>
+      </a>
+      <a href="index.html" class="action-btn">
+        <div class="aico">🏠</div>
+        <h4>Back to Home</h4>
+        <p>Explore more properties on NestFind</p>
+      </a>
+    </div>
+
+    <!-- WHAT'S NEXT -->
+    <div class="whats-next">
+      <h2>🗺️ What Happens Next?</h2>
+      <div class="next-step">
+        <div class="step-num">1</div>
+        <div class="step-text">
+          <h4>Confirmation Email Sent</h4>
+          <p>A detailed booking confirmation with all documents has been sent to your registered email address within 15 minutes.</p>
+        </div>
+      </div>
+      <div class="next-step">
+        <div class="step-num">2</div>
+        <div class="step-text">
+          <h4>NestFind Relationship Manager Assigned</h4>
+          <p>A dedicated relationship manager will call you within 24 hours to walk you through the next steps.</p>
+        </div>
+      </div>
+      <div class="next-step">
+        <div class="step-num">3</div>
+        <div class="step-text">
+          <h4>Legal Verification &amp; Documentation</h4>
+          <p>Our legal team will verify all property documents and prepare the sale agreement within 5–7 working days.</p>
+        </div>
+      </div>
+      <div class="next-step">
+        <div class="step-num">4</div>
+        <div class="step-text">
+          <h4>Registration at Sub-Registrar Office</h4>
+          <p>Schedule a convenient appointment for property registration. We'll coordinate with both parties and handle all paperwork.</p>
+        </div>
+      </div>
+      <div class="next-step">
+        <div class="step-num">5</div>
+        <div class="step-text">
+          <h4>🎉 Keys Handover</h4>
+          <p>After registration, get the keys to your dream home! Our team will be present to make the handover seamless.</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="main.js"></script>
+</body>
+</html>

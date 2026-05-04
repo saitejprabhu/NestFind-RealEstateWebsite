@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sell Property — NestFind</title>
+  <link rel="stylesheet" href="style.css"/>
+  <style>
+    /* ===== UPLOAD ZONE ===== */
+    .upload-zone {
+      border: 2px dashed var(--border);
+      border-radius: 10px;
+      background: #fafbfa;
+      padding: 32px 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.22s ease;
+      user-select: none;
+    }
+    .upload-zone:hover, .upload-zone.drag-over {
+      border-color: var(--primary);
+      background: var(--primary-light);
+    }
+    .upload-zone-video { background: #f8fbff; border-color: #b6cfe8; }
+    .upload-zone-video:hover, .upload-zone-video.drag-over { border-color: #2563eb; background: #eff6ff; }
+    .upload-icon { font-size: 36px; margin-bottom: 10px; }
+    .upload-title { font-size: 14.5px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+    .upload-sub { font-size: 13px; color: var(--primary); font-weight: 600; margin-bottom: 6px; }
+    .upload-hint { font-size: 11.5px; color: var(--text-muted); }
+    /* Preview grid */
+    .media-preview-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .media-thumb {
+      position: relative;
+      width: 100px;
+      height: 80px;
+      border-radius: 7px;
+      overflow: hidden;
+      border: 1.5px solid var(--border);
+      background: #f0f0f0;
+      flex-shrink: 0;
+    }
+    .media-thumb img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .media-thumb .vid-thumb {
+      width: 100%; height: 100%;
+      display: flex; align-items: center; justify-content: center;
+      background: #e8f0fe;
+      font-size: 28px;
+    }
+    .media-thumb .remove-btn {
+      position: absolute;
+      top: 4px; right: 4px;
+      width: 20px; height: 20px;
+      background: rgba(0,0,0,0.6);
+      color: #fff;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px;
+      cursor: pointer;
+      font-weight: 700;
+      line-height: 1;
+      transition: background 0.15s;
+    }
+    .media-thumb .remove-btn:hover { background: #e53e3e; }
+    .media-thumb .file-name {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      background: rgba(0,0,0,0.5);
+      color: #fff;
+      font-size: 9.5px;
+      padding: 2px 4px;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+    /* Photo tips */
+    .photo-tips {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 16px;
+      padding: 14px 16px;
+      background: var(--bg);
+      border-radius: 8px;
+      border: 1px solid var(--border-light);
+    }
+    .photo-tip {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12.5px;
+      color: var(--text-2);
+      font-weight: 500;
+    }
+    .photo-tip span { font-size: 15px; }
+  </style>
+  <script>
+    function previewFiles(input, previewId, type) {
+      const container = document.getElementById(previewId);
+      const files = Array.from(input.files);
+      files.forEach(file => {
+        const wrap = document.createElement('div');
+        wrap.className = 'media-thumb';
+        const rm = document.createElement('div');
+        rm.className = 'remove-btn';
+        rm.textContent = '✕';
+        rm.onclick = () => wrap.remove();
+        if (type === 'photo') {
+          const img = document.createElement('img');
+          const reader = new FileReader();
+          reader.onload = e => img.src = e.target.result;
+          reader.readAsDataURL(file);
+          wrap.appendChild(img);
+        } else {
+          const vd = document.createElement('div');
+          vd.className = 'vid-thumb';
+          vd.textContent = '🎬';
+          wrap.appendChild(vd);
+        }
+        const nm = document.createElement('div');
+        nm.className = 'file-name';
+        nm.textContent = file.name;
+        wrap.appendChild(nm);
+        wrap.appendChild(rm);
+        container.appendChild(wrap);
+      });
+    }
+    function handleDrop(e, type) {
+      e.preventDefault();
+      e.currentTarget.classList.remove('drag-over');
+      const dt = e.dataTransfer;
+      const previewId = type === 'photo' ? 'photoPreview' : 'videoPreview';
+      const container = document.getElementById(previewId);
+      Array.from(dt.files).forEach(file => {
+        const wrap = document.createElement('div');
+        wrap.className = 'media-thumb';
+        const rm = document.createElement('div');
+        rm.className = 'remove-btn';
+        rm.textContent = '✕';
+        rm.onclick = () => wrap.remove();
+        if (type === 'photo' && file.type.startsWith('image/')) {
+          const img = document.createElement('img');
+          const reader = new FileReader();
+          reader.onload = ev => img.src = ev.target.result;
+          reader.readAsDataURL(file);
+          wrap.appendChild(img);
+        } else {
+          const vd = document.createElement('div');
+          vd.className = 'vid-thumb';
+          vd.textContent = '🎬';
+          wrap.appendChild(vd);
+        }
+        const nm = document.createElement('div');
+        nm.className = 'file-name';
+        nm.textContent = file.name;
+        wrap.appendChild(nm);
+        wrap.appendChild(rm);
+        container.appendChild(wrap);
+      });
+    }
+  </script>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="nav-inner">
+    <a href="index.html" class="logo">
+           <span class="logo-icon"><img  style="width: 40px; height: 40px;" src="images/logo.png" alt="NestFind Logo"></span>
+      Nest<span>Find</span>
+    </a>
+    <div class="nav-links">
+      <a href="index.html" class="nav-link">Home</a>
+      <a href="buy.html" class="nav-link">Buy</a>
+      <a href="rent.html" class="nav-link">Rent</a>
+      <a href="sell.html" class="nav-link active">Sell</a>
+      <a href="about.html" class="nav-link">About</a>
+    </div>
+    <div class="nav-actions">
+      <a href="login.html" class="btn-outline">Login</a>
+      <a href="signup.html" class="btn-primary">Sign Up</a>
+    </div>
+  </div>
+</nav>
+
+<!-- PAGE HERO -->
+<div class="page-hero">
+  <div class="container">
+    <h1>List Your Property</h1>
+    <p>Reach 5 million+ active buyers &amp; renters. Get your first inquiry within 48 hours — guaranteed.</p>
+  </div>
+</div>
+
+<!-- FORM LAYOUT -->
+<div class="container">
+  <div class="form-layout">
+
+    <!-- MAIN FORM -->
+    <div>
+      <div class="form-card" style="margin-bottom:22px;">
+        <h2>📋 Basic Property Details</h2>
+        <form id="sellForm" action="#">
+
+          <div class="fg">
+            <label>Property Title *</label>
+            <div class="icw">
+              <span class="ic">🏠</span>
+              <input class="fc" type="text" name="title" placeholder="e.g. Spacious 3 BHK Apartment in Bandra West" required/>
+            </div>
+          </div>
+
+          <div class="frow">
+            <div class="fg">
+              <label>Property Type *</label>
+              <select class="fc" name="property_type" required>
+                <option value="">Select type</option>
+                <option>Apartment / Flat</option>
+                <option>Independent House</option>
+                <option>Villa</option>
+                <option>Row House</option>
+                <option>Studio Apartment</option>
+                <option>Plot / Land</option>
+                <option>Commercial Space</option>
+              </select>
+            </div>
+            <div class="fg">
+              <label>Listing Type *</label>
+              <select class="fc" name="listing_type" required>
+                <option value="">Select option</option>
+                <option>For Sale</option>
+                <option>For Rent</option>
+                <option>For Lease</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="frow">
+            <div class="fg">
+              <label>Asking Price / Rent *</label>
+              <div class="icw">
+                <span class="ic">₹</span>
+                <input class="fc" type="number" name="price" placeholder="e.g. 8500000" required/>
+              </div>
+            </div>
+            <div class="fg">
+              <label>Price Negotiable?</label>
+              <select class="fc" name="negotiable">
+                <option>Yes, negotiable</option>
+                <option>No, fixed price</option>
+                <option>Best offer</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="fg">
+            <label>Full Address *</label>
+            <div class="icw">
+              <span class="ic">📍</span>
+              <input class="fc" type="text" name="address" placeholder="Building name, street, locality" required/>
+            </div>
+          </div>
+
+          <div class="frow">
+            <div class="fg">
+              <label>City *</label>
+              <input class="fc" type="text" name="city" placeholder="e.g. Mumbai" required/>
+            </div>
+            <div class="fg">
+              <label>Pincode *</label>
+              <input class="fc" type="text" name="pincode" placeholder="e.g. 400050" required/>
+            </div>
+          </div>
+
+        </form>
+      </div>
+
+      <div class="form-card" style="margin-bottom:22px;">
+        <h2>🛏 Property Specifications</h2>
+        <form id="sellForm" action="#">
+
+          <div class="frow">
+            <div class="fg">
+              <label>BHK Configuration</label>
+              <select class="fc" name="bhk">
+                <option>1 BHK</option>
+                <option>1.5 BHK</option>
+                <option selected>2 BHK</option>
+                <option>2.5 BHK</option>
+                <option>3 BHK</option>
+                <option>3.5 BHK</option>
+                <option>4 BHK</option>
+                <option>4+ BHK</option>
+                <option>Studio</option>
+              </select>
+            </div>
+            <div class="fg">
+              <label>Bathrooms</label>
+              <select class="fc" name="bathrooms">
+                <option>1</option>
+                <option selected>2</option>
+                <option>3</option>
+                <option>4+</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="frow">
+            <div class="fg">
+              <label>Total Area (sqft) *</label>
+              <input class="fc" type="number" name="total_area" placeholder="e.g. 1450" required/>
+            </div>
+            <div class="fg">
+              <label>Carpet Area (sqft)</label>
+              <input class="fc" type="number" name="carpet_area" placeholder="e.g. 1100"/>
+            </div>
+          </div>
+
+          <div class="frow">
+            <div class="fg">
+              <label>Floor Number</label>
+              <input class="fc" type="number" name="floor_no" placeholder="e.g. 4"/>
+            </div>
+            <div class="fg">
+              <label>Total Floors in Building</label>
+              <input class="fc" type="number" name="total_floors" placeholder="e.g. 12"/>
+            </div>
+          </div>
+
+          <div class="frow">
+            <div class="fg">
+              <label>Furnishing Status</label>
+              <select class="fc" name="furnishing">
+                <option>Fully Furnished</option>
+                <option>Semi-Furnished</option>
+                <option>Unfurnished</option>
+              </select>
+            </div>
+            <div class="fg">
+              <label>Possession Status</label>
+              <select class="fc" name="possession">
+                <option>Ready to Move</option>
+                <option>Under Construction</option>
+                <option>Within 6 months</option>
+                <option>Within 1 year</option>
+              </select>
+            </div>
+          </div>
+
+        </form>
+      </div>
+
+      <div class="form-card" style="margin-bottom:22px;">
+        <h2>📝 Description &amp; Amenities</h2>
+        <form id="sellForm" action="#">
+          <div class="fg">
+            <label>Property Description *</label>
+            <textarea class="fc" name="description" placeholder="Describe your property — highlight unique features, nearby landmarks, view, recent renovations, etc." required></textarea>
+          </div>
+          <div class="fg">
+            <label>Key Amenities</label>
+            <input class="fc" type="text" name="amenities" placeholder="e.g. Parking, Swimming Pool, Gym, 24/7 Security, Power Backup"/>
+          </div>
+          <div class="fg">
+            <label>Additional Details</label>
+            <textarea class="fc" name="additional_info" style="min-height:80px;" placeholder="Maintenance cost, age of property, loan clearance status, preferred tenant type, etc."></textarea>
+          </div>
+        </form>
+      </div>
+
+      <!-- MEDIA UPLOAD CARD -->
+      <div class="form-card" style="margin-bottom:22px;">
+        <h2>📸 Photos &amp; Videos</h2>
+        <p style="font-size:13px; color:var(--text-muted); margin-bottom:20px; margin-top:-12px;">Listings with photos get <strong style="color:var(--primary);">3× more inquiries</strong>. Upload clear, well-lit images for best results.</p>
+
+        <!-- PHOTO UPLOAD -->
+        <div class="fg">
+          <label>Property Photos <span style="color:var(--text-muted); font-weight:500; text-transform:none; letter-spacing:0;">(up to 20 images · JPG, PNG · max 5MB each)</span></label>
+          <div class="upload-zone" id="photoZone" onclick="document.getElementById('photoInput').click()" ondragover="event.preventDefault(); this.classList.add('drag-over')" ondragleave="this.classList.remove('drag-over')" ondrop="handleDrop(event,'photo')">
+            <div class="upload-icon">🖼️</div>
+            <div class="upload-title">Drag &amp; drop photos here</div>
+            <div class="upload-sub">or click to browse from your device</div>
+            <div class="upload-hint">Supported: JPG, PNG, WEBP · Max 5 MB per file</div>
+            <input type="file" id="photoInput" accept="image/*" multiple style="display:none" onchange="previewFiles(this,'photoPreview','photo')"/>
+          </div>
+          <!-- Photo Previews -->
+          <div class="media-preview-grid" id="photoPreview"></div>
+        </div>
+
+        <!-- VIDEO UPLOAD -->
+        <div class="fg" style="margin-top:8px;">
+          <label>Property Videos <span style="color:var(--text-muted); font-weight:500; text-transform:none; letter-spacing:0;">(up to 3 videos · MP4, MOV · max 100MB each)</span></label>
+          <div class="upload-zone upload-zone-video" id="videoZone" onclick="document.getElementById('videoInput').click()" ondragover="event.preventDefault(); this.classList.add('drag-over')" ondragleave="this.classList.remove('drag-over')" ondrop="handleDrop(event,'video')">
+            <div class="upload-icon">🎥</div>
+            <div class="upload-title">Drag &amp; drop a walkthrough video</div>
+            <div class="upload-sub">or click to browse from your device</div>
+            <div class="upload-hint">Supported: MP4, MOV, AVI · Max 100 MB · Up to 3 videos</div>
+            <input type="file" id="videoInput" accept="video/*" multiple style="display:none" onchange="previewFiles(this,'videoPreview','video')"/>
+          </div>
+          <!-- Video Previews -->
+          <div class="media-preview-grid" id="videoPreview"></div>
+        </div>
+
+        <!-- TIPS ROW -->
+        <div class="photo-tips">
+          <div class="photo-tip"><span>☀️</span> Shoot in natural daylight</div>
+          <div class="photo-tip"><span>📐</span> Capture every room</div>
+          <div class="photo-tip"><span>🧹</span> Clean &amp; declutter first</div>
+          <div class="photo-tip"><span>🏞️</span> Include building exterior</div>
+        </div>
+      </div>
+
+      <div class="form-card">
+        <h2>👤 Owner / Contact Details</h2>
+        <form id="sellForm" action="#">
+          <div class="frow">
+            <div class="fg">
+              <label>Full Name *</label>
+              <div class="icw">
+                <span class="ic">👤</span>
+                <input class="fc" type="text" name="owner_name" placeholder="Your full name" required/>
+              </div>
+            </div>
+            <div class="fg">
+              <label>You Are *</label>
+              <select class="fc" name="owner_role" required>
+                <option value="">Select role</option>
+                <option>Owner</option>
+                <option>Broker / Agent</option>
+                <option>Builder</option>
+              </select>
+            </div>
+          </div>
+          <div class="frow">
+            <div class="fg">
+              <label>Mobile Number *</label>
+              <div class="icw">
+                <span class="ic">📱</span>
+                <input class="fc" type="tel" name="owner_mobile" placeholder="10-digit mobile" required/>
+              </div>
+            </div>
+            <div class="fg">
+              <label>Email Address</label>
+              <div class="icw">
+                <span class="ic">📧</span>
+                <input class="fc" type="email" name="owner_email" placeholder="you@email.com"/>
+              </div>
+            </div>
+          </div>
+          <button type="submit" class="btn-submit">🚀 Post Property for Free</button>
+          <p style="text-align:center; font-size:12px; color:var(--text-muted); margin-top:10px;">By submitting, you agree to our <a href="#" style="color:var(--primary);">Terms of Service</a> &amp; <a href="#" style="color:var(--primary);">Privacy Policy</a>.</p>
+        </form>
+      </div>
+    </div>
+
+    <!-- SIDEBAR -->
+    <div>
+      <div class="sidebar-card">
+        <h3>💡 Tips for a Great Listing</h3>
+        <div class="tip-item">
+          <div class="tip-icon">📸</div>
+          <div class="tip-text">
+            <h4>Add Quality Photos</h4>
+            <p>Listings with 10+ photos get 3× more inquiries. Use natural light.</p>
+          </div>
+        </div>
+        <div class="tip-item">
+          <div class="tip-icon">💰</div>
+          <div class="tip-text">
+            <h4>Price it Right</h4>
+            <p>Check nearby listings and price within 10% of market rate for faster results.</p>
+          </div>
+        </div>
+        <div class="tip-item">
+          <div class="tip-icon">📝</div>
+          <div class="tip-text">
+            <h4>Write a Clear Description</h4>
+            <p>Mention the nearest metro, school, hospital and key landmarks.</p>
+          </div>
+        </div>
+        <div class="tip-item">
+          <div class="tip-icon">⏱</div>
+          <div class="tip-text">
+            <h4>Respond Quickly</h4>
+            <p>Sellers who respond within 2 hours close deals 60% faster.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="sidebar-card" style="margin-top:20px; background: var(--primary-light); border-color: #b6d9c9;">
+        <h3 style="color:var(--primary);">🎯 Reach More Buyers</h3>
+        <p style="font-size:13px; color:var(--text-2); line-height:1.65; margin-bottom:16px;">Upgrade to a Featured Listing and get 5× more visibility, a priority badge, and dedicated agent support.</p>
+        <a href="#" class="btn-primary" style="display:block; text-align:center; padding:11px;">Explore Premium Plans</a>
+      </div>
+
+      <div class="sidebar-card" style="margin-top:20px;">
+        <h3>📞 Need Help?</h3>
+        <p style="font-size:13px; color:var(--text-muted); margin-bottom:14px;">Our property experts are available Monday–Saturday, 9 AM to 7 PM.</p>
+        <div style="display:flex; align-items:center; gap:10px; padding:12px; background:var(--bg); border-radius:8px;">
+          <span style="font-size:22px;">📞</span>
+          <div>
+            <div style="font-weight:700; font-size:14px;">1800-123-4567</div>
+            <div style="font-size:12px; color:var(--text-muted);">Toll-free helpline</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-grid">
+      <div class="fbrand">
+        <div class="flogo"><img width="30px" height="30px" src="images/logo.png" alt=""> Nest<span>Find</span></div>
+        <p>India's most trusted real estate platform. Helping millions find their dream home since 2012.</p>
+        <div class="social-row">
+          <a href="#" class="soc-btn">📘</a>
+          <a href="#" class="soc-btn">📸</a>
+          <a href="#" class="soc-btn">🐦</a>
+          <a href="#" class="soc-btn">💼</a>
+        </div>
+      </div>
+      <div class="fcol">
+        <h4>Properties</h4>
+        <ul>
+          <li><a href="buy.html">Buy a Home</a></li>
+          <li><a href="rent.html">Rent a Home</a></li>
+          <li><a href="sell.html">Sell Your Property</a></li>
+        </ul>
+      </div>
+      <div class="fcol">
+        <h4>Popular Cities</h4>
+        <ul>
+          <li><a href="#">Mumbai</a></li>
+          <li><a href="#">Bangalore</a></li>
+          <li><a href="#">Delhi NCR</a></li>
+          <li><a href="#">Hyderabad</a></li>
+          <li><a href="#">Pune</a></li>
+        </ul>
+      </div>
+      <div class="fcol">
+        <h4>Company</h4>
+        <ul>
+          <li><a href="#">About Us</a></li>
+          <li><a href="#">Contact</a></li>
+          <li><a href="#">Privacy Policy</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2025 NestFind Technologies Pvt. Ltd. All rights reserved.</p>
+    </div>
+  </div>
+</footer>
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="main.js"></script>
+</body>
+</html>
