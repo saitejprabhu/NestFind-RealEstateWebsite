@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Buy Property — NestFind</title>
+  <link rel="stylesheet" href="style.css"/>
+  <style>
+    .buy-now-btn {
+      display: block;
+      width: 100%;
+      background: var(--primary);
+      color: #fff;
+      font-weight: 700;
+      font-size: 13.5px;
+      padding: 10px;
+      border-radius: 7px;
+      text-align: center;
+      margin-top: 12px;
+      transition: all 0.2s ease;
+      border: none;
+      cursor: pointer;
+    }
+    .buy-now-btn:hover {
+      background: var(--primary-dark);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(26,107,74,0.22);
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="nav-inner">
+    <a href="index.html" class="logo">
+          <span class="logo-icon"><img  style="width: 40px; height: 40px;" src="images/logo.png" alt="NestFind Logo"></span>
+      Nest<span>Find</span>
+    </a>
+    <div class="nav-links">
+      <a href="index.html" class="nav-link">Home</a>
+      <a href="buy.html" class="nav-link active">Buy</a>
+      <a href="rent.html" class="nav-link">Rent</a>
+      <a href="sell.html" class="nav-link">Sell</a>
+      <a href="about.html" class="nav-link">About</a>
+    </div>
+    <div class="nav-actions">
+      <a href="login.html" class="btn-outline">Login</a>
+      <a href="signup.html" class="btn-primary">Sign Up</a>
+    </div>
+  </div>
+</nav>
+
+<!-- PAGE HEADER -->
+<div class="page-header-strip">
+  <div class="container">
+    <div>
+      <h1>Properties for Sale</h1>
+      <p>Find your perfect home from our verified listings</p>
+    </div>
+    <div class="result-count">Showing <strong>4,812</strong> properties</div>
+  </div>
+</div>
+
+<!-- FILTER BAR -->
+<section class="section" style="padding: 20px 0 0;">
+  <div class="container">
+    <div class="filter-bar">
+      <span class="chip active">All Types</span>
+      <span class="chip">Apartment</span>
+      <span class="chip">Villa</span>
+      <span class="chip">Plot/Land</span>
+      <span class="chip">Studio</span>
+      <span class="chip">Under ₹30L</span>
+      <span class="chip">₹30L–₹75L</span>
+      <span class="chip">₹75L–₹1.5Cr</span>
+      <span class="chip">₹1.5Cr+</span>
+      <span class="chip">Ready to Move</span>
+      <span class="chip">New Launch</span>
+    </div>
+  </div>
+</section>
+
+<!-- PROPERTY LISTINGS -->
+<section class="section" style="padding-top: 16px;">
+  <div class="container">
+    <div class="props-grid">
+
+      <!-- Card 1 -->
+      <div class="prop-card">
+        <div class="prop-img">
+          <div class="prop-img-placeholder">🏢</div>
+          <div class="prop-badge">For Sale</div>
+          <div class="prop-wishlist">🤍</div>
+          <div class="prop-overlay"><span class="view-tag">View Details</span></div>
+        </div>
+        <div class="prop-info">
+          <div class="prop-price">₹85,00,000 <span>onwards</span></div>
+          <div class="prop-title">Luxury 3 BHK Apartment in Bandra West</div>
+          <div class="prop-loc">📍 Bandra West, Mumbai · 1.2 km from station</div>
+          <div class="prop-meta">
+            <div class="prop-meta-item"><span class="ico">🛏</span> 3 BHK</div>
+            <div class="prop-meta-item"><span class="ico">🛁</span> 2 Bath</div>
+            <div class="prop-meta-item"><span class="ico">📐</span> 1,450 sqft</div>
+          </div>
+          <a href="payment.html" class="buy-now-btn">🏠 Buy Now</a>
+        </div>
+      </div>
+
+      <!-- Card 2 -->
+      <div class="prop-card">
+        <div class="prop-img">
+          <div class="prop-img-placeholder">🏠</div>
+          <div class="prop-badge">For Sale</div>
+          <div class="prop-wishlist">🤍</div>
+          <div class="prop-overlay"><span class="view-tag">View Details</span></div>
+        </div>
+        <div class="prop-info">
+          <div class="prop-price">₹2,10,00,000</div>
+          <div class="prop-title">Independent Villa with Garden — Whitefield</div>
+          <div class="prop-loc">📍 Whitefield, Bangalore · Gated Community</div>
+          <div class="prop-meta">
+            <div class="prop-meta-item"><span class="ico">🛏</span> 4 BHK</div>
+            <div class="prop-meta-item"><span class="ico">🛁</span> 3 Bath</div>
+            <div class="prop-meta-item"><span class="ico">📐</span> 2,800 sqft</div>
+          </div>
+          <a href="payment.html" class="buy-now-btn">🏠 Buy Now</a>
+        </div>
+      </div>
+
+      <!-- Card 3 -->
+      <div class="prop-card">
+        <div class="prop-img">
+          <div class="prop-img-placeholder">🏗</div>
+          <div class="prop-badge">For Sale</div>
+          <div class="prop-wishlist">🤍</div>
+          <div class="prop-overlay"><span class="view-tag">View Details</span></div>
+        </div>
+        <div class="prop-info">
+          <div class="prop-price">₹42,00,000</div>
+          <div class="prop-title">Cozy 2 BHK Near Metro Station</div>
+          <div class="prop-loc">📍 Sector 62, Noida · Metro Accessible</div>
+          <div class="prop-meta">
+            <div class="prop-meta-item"><span class="ico">🛏</span> 2 BHK</div>
+            <div class="prop-meta-item"><span class="ico">🛁</span> 2 Bath</div>
+            <div class="prop-meta-item"><span class="ico">📐</span> 950 sqft</div>
+          </div>
+          <a href="payment.html" class="buy-now-btn">🏠 Buy Now</a>
+        </div>
+      </div>
+
+      <!-- Card 4 -->
+      <div class="prop-card">
+        <div class="prop-img">
+          <div class="prop-img-placeholder">🏘</div>
+          <div class="prop-badge">For Sale</div>
+          <div class="prop-wishlist">🤍</div>
+          <div class="prop-overlay"><span class="view-tag">View Details</span></div>
+        </div>
+        <div class="prop-info">
+          <div class="prop-price">₹1,20,00,000</div>
+          <div class="prop-title">Premium 3 BHK — Hi-Tech City</div>
+          <div class="prop-loc">📍 Hi-Tech City, Hyderabad · IT Corridor</div>
+          <div class="prop-meta">
+            <div class="prop-meta-item"><span class="ico">🛏</span> 3 BHK</div>
+            <div class="prop-meta-item"><span class="ico">🛁</span> 3 Bath</div>
+            <div class="prop-meta-item"><span class="ico">📐</span> 1,620 sqft</div>
+          </div>
+          <a href="payment.html" class="buy-now-btn">🏠 Buy Now</a>
+        </div>
+      </div>
+
+      <!-- Card 5 -->
+      <div class="prop-card">
+        <div class="prop-img">
+          <div class="prop-img-placeholder">🏙</div>
+          <div class="prop-badge">For Sale</div>
+          <div class="prop-wishlist">🤍</div>
+          <div class="prop-overlay"><span class="view-tag">View Details</span></div>
+        </div>
+        <div class="prop-info">
+          <div class="prop-price">₹68,00,000</div>
+          <div class="prop-title">Sea-View 2 BHK — Marine Drive Area</div>
+          <div class="prop-loc">📍 Nariman Point, Mumbai · Sea View</div>
+          <div class="prop-meta">
+            <div class="prop-meta-item"><span class="ico">🛏</span> 2 BHK</div>
+            <div class="prop-meta-item"><span class="ico">🛁</span> 2 Bath</div>
+            <div class="prop-meta-item"><span class="ico">📐</span> 1,050 sqft</div>
+          </div>
+          <a href="payment.html" class="buy-now-btn">🏠 Buy Now</a>
+        </div>
+      </div>
+
+      <!-- Card 6 -->
+      <div class="prop-card">
+        <div class="prop-img">
+          <div class="prop-img-placeholder">🌿</div>
+          <div class="prop-badge">For Sale</div>
+          <div class="prop-wishlist">🤍</div>
+          <div class="prop-overlay"><span class="view-tag">View Details</span></div>
+        </div>
+        <div class="prop-info">
+          <div class="prop-price">₹95,00,000</div>
+          <div class="prop-title">Row House with Private Terrace — Pune</div>
+          <div class="prop-loc">📍 Baner, Pune · Near IT Park</div>
+          <div class="prop-meta">
+            <div class="prop-meta-item"><span class="ico">🛏</span> 3 BHK</div>
+            <div class="prop-meta-item"><span class="ico">🛁</span> 3 Bath</div>
+            <div class="prop-meta-item"><span class="ico">📐</span> 2,100 sqft</div>
+          </div>
+          <a href="payment.html" class="buy-now-btn">🏠 Buy Now</a>
+        </div>
+      </div>
+
+      <!-- Card 7 -->
+      <div class="prop-card">
+        <div class="prop-img">
+          <div class="prop-img-placeholder">🏛</div>
+          <div class="prop-badge">For Sale</div>
+          <div class="prop-wishlist">🤍</div>
+          <div class="prop-overlay"><span class="view-tag">View Details</span></div>
+        </div>
+        <div class="prop-info">
+          <div class="prop-price">₹28,00,000</div>
+          <div class="prop-title">Affordable 1 BHK — Thane West</div>
+          <div class="prop-loc">📍 Thane West, Mumbai MMR</div>
+          <div class="prop-meta">
+            <div class="prop-meta-item"><span class="ico">🛏</span> 1 BHK</div>
+            <div class="prop-meta-item"><span class="ico">🛁</span> 1 Bath</div>
+            <div class="prop-meta-item"><span class="ico">📐</span> 580 sqft</div>
+          </div>
+          <a href="payment.html" class="buy-now-btn">🏠 Buy Now</a>
+        </div>
+      </div>
+
+      <!-- Card 8 -->
+      <div class="prop-card">
+        <div class="prop-img">
+          <div class="prop-img-placeholder">🌆</div>
+          <div class="prop-badge">For Sale</div>
+          <div class="prop-wishlist">🤍</div>
+          <div class="prop-overlay"><span class="view-tag">View Details</span></div>
+        </div>
+        <div class="prop-info">
+          <div class="prop-price">₹3,50,00,000</div>
+          <div class="prop-title">Penthouse with 360° City View — DLF Phase 5</div>
+          <div class="prop-loc">📍 DLF Phase 5, Gurgaon · Ultra Premium</div>
+          <div class="prop-meta">
+            <div class="prop-meta-item"><span class="ico">🛏</span> 5 BHK</div>
+            <div class="prop-meta-item"><span class="ico">🛁</span> 5 Bath</div>
+            <div class="prop-meta-item"><span class="ico">📐</span> 5,200 sqft</div>
+          </div>
+          <a href="payment.html" class="buy-now-btn">🏠 Buy Now</a>
+        </div>
+      </div>
+
+      <!-- Card 9 -->
+      <div class="prop-card">
+        <div class="prop-img">
+          <div class="prop-img-placeholder">🏡</div>
+          <div class="prop-badge">For Sale</div>
+          <div class="prop-wishlist">🤍</div>
+          <div class="prop-overlay"><span class="view-tag">View Details</span></div>
+        </div>
+        <div class="prop-info">
+          <div class="prop-price">₹55,00,000</div>
+          <div class="prop-title">Corner Unit 2.5 BHK — Salt Lake City</div>
+          <div class="prop-loc">📍 Salt Lake, Kolkata · Prime Locality</div>
+          <div class="prop-meta">
+            <div class="prop-meta-item"><span class="ico">🛏</span> 2.5 BHK</div>
+            <div class="prop-meta-item"><span class="ico">🛁</span> 2 Bath</div>
+            <div class="prop-meta-item"><span class="ico">📐</span> 1,200 sqft</div>
+          </div>
+          <a href="payment.html" class="buy-now-btn">🏠 Buy Now</a>
+        </div>
+      </div>
+
+    </div>
+
+    <div style="text-align:center; margin-top:36px;">
+      <a href="#" class="btn-primary" style="display:inline-block; padding:12px 36px; font-size:14px;">Load More Properties</a>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-grid">
+      <div class="fbrand">
+        <div class="flogo"><img width="30px" height="30px" src="images/logo.png" alt=""> Nest<span>Find</span></div>
+        <p>India's most trusted real estate platform. Helping millions find their dream home since 2012.</p>
+        <div class="social-row">
+          <a href="#" class="soc-btn">📘</a>
+          <a href="#" class="soc-btn">📸</a>
+          <a href="#" class="soc-btn">🐦</a>
+          <a href="#" class="soc-btn">💼</a>
+        </div>
+      </div>
+      <div class="fcol">
+        <h4>Properties</h4>
+        <ul>
+          <li><a href="buy.html">Buy a Home</a></li>
+          <li><a href="rent.html">Rent a Home</a></li>
+          <li><a href="sell.html">Sell Your Property</a></li>
+          <li><a href="#">New Projects</a></li>
+        </ul>
+      </div>
+      <div class="fcol">
+        <h4>Popular Cities</h4>
+        <ul>
+          <li><a href="#">Mumbai</a></li>
+          <li><a href="#">Bangalore</a></li>
+          <li><a href="#">Delhi NCR</a></li>
+          <li><a href="#">Hyderabad</a></li>
+          <li><a href="#">Pune</a></li>
+        </ul>
+      </div>
+      <div class="fcol">
+        <h4>Company</h4>
+        <ul>
+          <li><a href="#">About Us</a></li>
+          <li><a href="#">Contact</a></li>
+          <li><a href="#">Privacy Policy</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2025 NestFind Technologies Pvt. Ltd. All rights reserved.</p>
+    </div>
+  </div>
+</footer>
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="main.js"></script>
+</body>
+</html>
