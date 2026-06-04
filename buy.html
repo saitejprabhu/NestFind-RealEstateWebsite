@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Buy Property — NestFind</title>
+  <link rel="stylesheet" href="style.css"/>
+  <style>
+    .buy-now-btn {
+      display: block;
+      width: 100%;
+      background: var(--primary);
+      color: #fff;
+      font-weight: 700;
+      font-size: 13.5px;
+      padding: 10px;
+      border-radius: 7px;
+      text-align: center;
+      margin-top: 12px;
+      transition: all 0.2s ease;
+      border: none;
+      cursor: pointer;
+      text-decoration: none;
+    }
+    .buy-now-btn:hover {
+      background: var(--primary-dark);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(26,107,74,0.22);
+    }
+    .empty-state {
+      text-align: center;
+      padding: 64px 24px;
+      color: var(--text-muted);
+      grid-column: 1 / -1;
+    }
+    .empty-state .es-icon { font-size: 56px; margin-bottom: 16px; }
+    .empty-state h3 { font-size: 19px; font-weight: 800; color: var(--text); margin-bottom: 8px; }
+    .empty-state p { font-size: 14px; }
+    .skeleton {
+      background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.4s infinite;
+    }
+    @keyframes shimmer { 0%{background-position:-200% 0}100%{background-position:200% 0} }
+    .skel-card { height: 320px; border-radius: 12px; }
+  </style>
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="nav-inner">
+    <a href="index.html" class="logo">
+      <span class="logo-icon"><img style="width:40px;height:40px;" src="images/logo.png" alt="NestFind Logo"></span>
+      Nest<span>Find</span>
+    </a>
+    <div class="nav-links">
+      <a href="index.html" class="nav-link">Home</a>
+      <a href="buy.html" class="nav-link active">Buy</a>
+      <a href="rent.html" class="nav-link">Rent</a>
+      <a href="sell.html" class="nav-link">Sell</a>
+      <a href="about.html" class="nav-link">About</a>
+    </div>
+    <div class="nav-actions">
+      <a href="login.html" class="btn-outline">Login</a>
+      <a href="signup.html" class="btn-primary">Sign Up</a>
+    </div>
+  </div>
+</nav>
+
+<div class="page-header-strip">
+  <div class="container">
+    <div>
+      <h1>Properties for Sale</h1>
+      <p>Find your perfect home from our verified listings</p>
+    </div>
+    <div class="result-count">Showing <strong id="buyCount">…</strong> properties</div>
+  </div>
+  <div class="container" style="margin-top:12px;">
+    <div class="hero-search" style="max-width:520px;background:#fff;border:1.5px solid var(--border);box-shadow:0 2px 8px rgba(0,0,0,0.07);">
+      <span style="font-size:16px;padding-left:6px;">🔍</span>
+      <input type="text" id="buySearchInput" placeholder="Search by city, locality or property name…" style="color:#1a1a1a;" autocomplete="off"/>
+      <button class="btn-search">Search</button>
+    </div>
+  </div>
+</div>
+
+<section class="section" style="padding:20px 0 0;">
+  <div class="container">
+    <div class="filter-bar">
+      <span class="chip active">All Types</span>
+      <span class="chip">Apartment</span>
+      <span class="chip">Villa</span>
+      <span class="chip">Plot/Land</span>
+      <span class="chip">Studio</span>
+      <span class="chip">Under ₹30L</span>
+      <span class="chip">₹30L–₹75L</span>
+      <span class="chip">₹75L–₹1.5Cr</span>
+      <span class="chip">₹1.5Cr+</span>
+    </div>
+  </div>
+</section>
+
+<section class="section" style="padding-top:16px;">
+  <div class="container">
+    <div class="props-grid" id="buyGrid">
+      <div class="skeleton skel-card"></div>
+      <div class="skeleton skel-card"></div>
+      <div class="skeleton skel-card"></div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-grid">
+      <div class="fbrand">
+        <div class="flogo"><img width="30px" height="30px" src="images/logo.png" alt=""> Nest<span>Find</span></div>
+        <p>India's most trusted real estate platform. Helping millions find their dream home since 2012.</p>
+        <div class="social-row">
+          <a href="#" class="soc-btn">📘</a><a href="#" class="soc-btn">📸</a>
+          <a href="#" class="soc-btn">🐦</a><a href="#" class="soc-btn">💼</a>
+        </div>
+      </div>
+      <div class="fcol">
+        <h4>Properties</h4>
+        <ul>
+          <li><a href="buy.html">Buy a Home</a></li>
+          <li><a href="rent.html">Rent a Home</a></li>
+          <li><a href="sell.html">Sell Your Property</a></li>
+        </ul>
+      </div>
+      <div class="fcol">
+        <h4>Popular Cities</h4>
+        <ul>
+          <li><a href="#">Panaji</a></li><li><a href="#">Mapusa</a></li>
+          <li><a href="#">Margao</a></li><li><a href="#">Vasco</a></li>
+        </ul>
+      </div>
+      <div class="fcol">
+        <h4>Company</h4>
+        <ul>
+          <li><a href="#">About Us</a></li>
+          <li><a href="#">Contact</a></li>
+          <li><a href="#">Privacy Policy</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2026 NestFind Technologies Pvt. Ltd. All rights reserved.</p>
+    </div>
+  </div>
+</footer>
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="script.js"></script>
+<script>
+/**
+ * Buy Page — Dynamic Property Loader
+ *
+ * Flow:
+ *  1. Fetch Sale properties from API
+ *  2. Build cards with a "Buy Now" button
+ *  3. On "Buy Now" click → save ALL property details into sessionStorage
+ *     using JSON (safe for any characters including apostrophes, commas, etc.)
+ *  4. Navigate to payment.html which reads sessionStorage and populates itself
+ */
+$(document).ready(function () {
+
+  /** Format price in Indian notation */
+  function formatPrice(price) {
+    price = parseFloat(price) || 0;
+    if (price >= 10000000) return '₹' + (price / 10000000).toFixed(2) + ' Cr';
+    if (price >= 100000)   return '₹' + (price / 100000).toFixed(2) + ' L';
+    return '₹' + price.toLocaleString('en-IN');
+  }
+
+  /** Safely escape HTML to prevent XSS in card rendering */
+  function escHtml(str) {
+    return $('<div>').text(str || '').html();
+  }
+
+  /**
+   * Calculate price breakdown for a Sale property
+   * Returns object with all line items as formatted strings
+   */
+  function calcSaleBreakdown(price) {
+    price      = parseFloat(price) || 0;
+    const reg     = 110000;
+    const stamp   = Math.round(price * 0.015);
+    const service = 12500;
+    const total   = price + reg + stamp + service;
+    return {
+      priceBase:    formatPrice(price),
+      priceReg:     '₹' + reg.toLocaleString('en-IN'),
+      priceStamp:   '₹' + stamp.toLocaleString('en-IN') + ' (1.5%)',
+      priceService: '₹' + service.toLocaleString('en-IN'),
+      priceTotal:   formatPrice(total),
+      payBtnAmount: formatPrice(total),
+    };
+  }
+
+  /**
+   * Build HTML string for one Sale property card.
+   * The "Buy Now" button stores a data-prop-id which is used to
+   * look up the full property object when clicked — avoiding any
+   * escaping/quoting issues with inline onclick attributes.
+   */
+  function buildSaleCard(prop) {
+    const imgHtml = prop.image
+      ? `<img src="${prop.image}" alt="${escHtml(prop.title)}" loading="lazy"
+             onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
+         <div class="prop-img-placeholder" style="display:none;align-items:center;justify-content:center;height:100%;font-size:48px;">🏠</div>`
+      : `<div class="prop-img-placeholder" style="display:flex;align-items:center;justify-content:center;height:100%;font-size:48px;">🏠</div>`;
+
+    const bedsHtml  = prop.bedrooms  ? `<div class="prop-meta-item"><span class="ico">🛏</span> ${escHtml(prop.bedrooms)}</div>` : '';
+    const bathsHtml = prop.bathrooms ? `<div class="prop-meta-item"><span class="ico">🛁</span> ${prop.bathrooms} Bath</div>` : '';
+    const areaHtml  = prop.area      ? `<div class="prop-meta-item"><span class="ico">📐</span> ${escHtml(prop.area)}</div>` : '';
+    const furnHtml  = prop.furnishing ? `<div class="prop-meta-item"><span class="ico">🛋</span> ${escHtml(prop.furnishing)}</div>` : '';
+
+    // data-prop-id goes on .prop-card so script.js modal handler can find it
+    return `
+      <div class="prop-card" data-prop-id="db_${prop.id}" data-db-prop="1">
+        <div class="prop-img">
+          ${imgHtml}
+          <div class="prop-badge">For Sale</div>
+          <div class="prop-wishlist">🤍</div>
+          <div class="prop-overlay"><span class="view-tag">View Details</span></div>
+        </div>
+        <div class="prop-info">
+          <div class="prop-price">${formatPrice(prop.price)}</div>
+          <div class="prop-title">${escHtml(prop.title)}</div>
+          <div class="prop-loc">📍 ${escHtml(prop.location)}</div>
+          <div class="prop-meta">${bedsHtml}${bathsHtml}${areaHtml}${furnHtml}</div>
+          <!-- data-prop-id on the button still used for Buy Now -->
+          <button class="buy-now-btn" data-prop-id="${prop.id}">🏠 Buy Now</button>
+        </div>
+      </div>`;
+  }
+
+  // Store all fetched properties keyed by id for quick lookup on click
+  const propMap = {};
+  // Also keyed by db_{id} for View Details modal integration
+  const dbPropMap = {};
+  window.__dbPropMap = window.__dbPropMap || {};
+
+  // Register on window so script.js can open a DB-property modal
+  $(document).on('click', '.prop-card[data-db-prop="1"] .prop-overlay, .prop-card[data-db-prop="1"] .view-tag', function (e) {
+    e.preventDefault();
+    e.stopPropagation();
+    const card = $(this).closest('.prop-card');
+    const cardId = card.data('prop-id'); // e.g. "db_5"
+    const prop = dbPropMap[cardId];
+    if (!prop) return;
+    openDbModal(prop);
+  });
+
+  $(document).on('click', '.prop-card[data-db-prop="1"]', function (e) {
+    if ($(e.target).is('button') || $(e.target).closest('button').length) return;
+    if ($(e.target).is('.prop-wishlist') || $(e.target).closest('.prop-wishlist').length) return;
+    const cardId = $(this).data('prop-id');
+    const prop = dbPropMap[cardId];
+    if (!prop) return;
+    openDbModal(prop);
+  });
+
+  function openDbModal(prop) {
+    // Ensure modal container exists (script.js creates it)
+    if ($('#propModal').length === 0) {
+      $('body').append('<div id="propModal" class="modal-overlay" role="dialog" aria-modal="true" aria-label="Property Details"><div class="modal-box"><button class="modal-close" id="modalClose" aria-label="Close">✕</button><div id="modalBody"></div></div></div>');
+    }
+
+    const formattedPrice = formatPrice(prop.price);
+    const priceNote = prop.property_type === 'Rent' ? '/month' : 'onwards';
+    const actionBtn = `<button class="modal-action-btn buy-btn" onclick="document.querySelector('[data-prop-id=\\'${prop.id}\\']').click()">🏠 Buy Now</button>`;
+
+    // Amenities from DB (stored as comma-separated or JSON array)
+    let amenities = [];
+    if (prop.amenities) {
+      try { amenities = JSON.parse(prop.amenities); } catch(e) {
+        amenities = prop.amenities.split(',').map(a => a.trim()).filter(Boolean);
+      }
+    }
+    const amenityHTML = amenities.length
+      ? amenities.map(a => `<span class="modal-amenity">${a}</span>`).join('')
+      : '<span class="modal-amenity">🏠 Standard Amenities</span>';
+
+    // Extra images
+    let extraImages = [];
+    if (prop.extra_images) {
+      try { extraImages = JSON.parse(prop.extra_images); } catch(e) {}
+    }
+    const galleryHTML = extraImages.length
+      ? `<div class="modal-gallery" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:8px;margin:10px 0 16px;">
+          ${extraImages.map(img => `<img src="${img}" style="width:100%;height:80px;object-fit:cover;border-radius:6px;" onerror="this.style.display='none'">`).join('')}
+         </div>` : '';
+
+    // Map embed
+    const mapHTML = prop.map_embed
+      ? `<div style="margin:16px 0 8px;"><div style="font-weight:700;font-size:13px;color:var(--text);margin-bottom:8px;">📍 Location Map</div><div style="border-radius:10px;overflow:hidden;border:1.5px solid var(--border);">${prop.map_embed}</div></div>`
+      : '';
+
+    const wlKey = localStorage.getItem('nf_user') ? 'nf_wishlist_' + JSON.parse(localStorage.getItem('nf_user') || '{}').name : 'nf_wishlist_guest';
+    const wishlist = JSON.parse(localStorage.getItem(wlKey) || '{}');
+    const wlId = 'db_' + prop.id;
+    const wlIcon = wishlist[wlId] ? '❤️' : '🤍';
+
+    $('#modalBody').html(`
+      <div class="modal-img-wrap">
+        ${prop.image ? `<img src="${prop.image}" alt="${prop.title}" class="modal-hero-img" loading="lazy"/>` : `<div style="height:260px;background:var(--primary-light);display:flex;align-items:center;justify-content:center;font-size:64px;">🏠</div>`}
+        <div class="modal-badge">For Sale</div>
+        <div class="modal-wishlist" data-prop-id="${wlId}" style="position:absolute;top:12px;right:12px;background:#fff;border-radius:50%;width:36px;height:36px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;box-shadow:0 2px 8px rgba(0,0,0,0.15);">${wlIcon}</div>
+      </div>
+      ${galleryHTML}
+      <div class="modal-content">
+        <div class="modal-price">${formattedPrice} <span>${priceNote}</span></div>
+        <h2 class="modal-title">${prop.title}</h2>
+        <p class="modal-loc">📍 ${prop.location}</p>
+        <div class="modal-meta-row">
+          ${prop.bedrooms ? `<span class="modal-meta-item">🛏 ${prop.bedrooms}</span>` : ''}
+          ${prop.bathrooms ? `<span class="modal-meta-item">🛁 ${prop.bathrooms} Bath</span>` : ''}
+          ${prop.area ? `<span class="modal-meta-item">📐 ${prop.area}</span>` : ''}
+          ${prop.furnishing ? `<span class="modal-meta-item">🛋 ${prop.furnishing}</span>` : ''}
+          <span class="modal-meta-item">✅ For Sale</span>
+        </div>
+        ${prop.description ? `<p class="modal-desc">${prop.description}</p>` : ''}
+        <div class="modal-amenities-label">Amenities & Features</div>
+        <div class="modal-amenities">${amenityHTML}</div>
+        ${mapHTML}
+        <div class="modal-actions">
+          ${actionBtn}
+          <button class="modal-share-btn" onclick="navigator.share ? navigator.share({title:'${prop.title}',url:window.location.href}) : alert('Copy the URL to share!')">📤 Share</button>
+        </div>
+      </div>
+    `);
+    $('#propModal').fadeIn(250);
+    $('body').addClass('modal-open');
+
+    // Wishlist toggle inside DB modal
+    $('#propModal').off('click.dbwl').on('click.dbwl', '.modal-wishlist', function(e) {
+      e.stopPropagation();
+      const id = $(this).data('prop-id');
+      const wl = JSON.parse(localStorage.getItem(wlKey) || '{}');
+      if (wl[id]) {
+        delete wl[id];
+        $(this).text('🤍');
+        // Also update card heart
+        $(`.prop-card[data-prop-id="${id}"] .prop-wishlist`).text('🤍').removeClass('wished');
+        if (typeof showToast === 'function') showToast('Removed from Wishlist', 'info');
+      } else {
+        wl[id] = JSON.stringify({ id: prop.id, title: prop.title, price: formattedPrice, location: prop.location, image: prop.image || '', beds: prop.bedrooms || '', area: prop.area || '', listing_type: 'For Sale' });
+        $(this).text('❤️');
+        $(`.prop-card[data-prop-id="${id}"] .prop-wishlist`).text('❤️').addClass('wished');
+        if (typeof showToast === 'function') showToast('Added to Wishlist ❤️', 'success');
+      }
+      localStorage.setItem(wlKey, JSON.stringify(wl));
+    });
+  }
+
+  // Fetch Sale properties from API
+  $.ajax({
+    url: 'api/properties.php?action=list&type=Sale',
+    method: 'GET',
+    dataType: 'json',
+    success: function (res) {
+      const $grid = $('#buyGrid');
+      $grid.empty();
+
+      if (!res.success || !res.properties.length) {
+        $grid.html(`
+          <div class="empty-state">
+            <div class="es-icon">🏠</div>
+            <h3>No Properties Listed Yet</h3>
+            <p>The admin hasn't added any Sale properties yet. Check back soon!</p>
+          </div>`);
+        $('#buyCount').text('0');
+        return;
+      }
+
+      res.properties.forEach(function (prop) {
+        propMap[prop.id] = prop;   // store full object for click lookup
+        $grid.append(buildSaleCard(prop));
+        // Store with db_ prefix for modal & wishlist lookup
+        dbPropMap['db_' + prop.id] = prop;
+      });
+
+      $('#buyCount').text(res.properties.length);
+    },
+    error: function () {
+      $('#buyGrid').html(`
+        <div class="empty-state">
+          <div class="es-icon">⚠️</div>
+          <h3>Could Not Load Properties</h3>
+          <p>Please ensure the server is running and the database is connected.</p>
+        </div>`);
+      $('#buyCount').text('0');
+    }
+  });
+
+  $('#buyGrid').on('click', '.prop-wishlist', function (e) {
+    e.preventDefault();
+    e.stopPropagation();
+    const card   = $(this).closest('.prop-card');
+    const cardId = card.data('prop-id');
+    const rawId  = cardId ? String(cardId).replace('db_', '') : null;
+    const prop   = rawId ? (propMap[rawId] || dbPropMap['db_' + rawId] || null) : null;
+
+    const wlKey = localStorage.getItem('nf_user') ? 'nf_wishlist_' + JSON.parse(localStorage.getItem('nf_user') || '{}').name : 'nf_wishlist_guest';
+    const wl    = JSON.parse(localStorage.getItem(wlKey) || '{}');
+
+    if (wl[cardId]) {
+      delete wl[cardId];
+      $(this).text('🤍').removeClass('wished');
+      if (typeof showToast === 'function') showToast('Removed from Wishlist', 'info');
+    } else {
+      // Build details from propMap if available, otherwise scrape from card DOM
+      const title    = prop ? prop.title        : card.find('.prop-title').text().trim();
+      const location = prop ? prop.location     : card.find('.prop-loc').text().replace('📍','').trim();
+      const price    = prop ? formatPrice(prop.price) : card.find('.prop-price').text().trim();
+      const image    = prop ? (prop.image || '')      : (card.find('img').attr('src') || '');
+      const beds     = prop ? (prop.bedrooms || '')   : card.find('.prop-meta-item').first().text().replace(/[^0-9A-Za-z\s]/g,'').trim();
+      const area     = prop ? (prop.area || '')       : card.find('.prop-meta-item').eq(2).text().replace('📐','').trim();
+      wl[cardId] = JSON.stringify({ id: rawId || cardId, title, price, location, image, beds, area, listing_type: 'For Sale' });
+      $(this).text('❤️').addClass('wished');
+      if (typeof showToast === 'function') showToast('Added to Wishlist ❤️', 'success');
+    }
+    localStorage.setItem(wlKey, JSON.stringify(wl));
+  });
+
+  /**
+   * "Buy Now" button click handler (event delegation on grid).
+   * Reads the full property object from propMap using data-prop-id,
+   * builds the complete payment payload as JSON, stores in sessionStorage,
+   * then navigates to payment.html.
+   *
+   * Using JSON.stringify means ALL characters (apostrophes, quotes,
+   * commas, special chars) are handled safely — no inline escaping needed.
+   */
+  $('#buyGrid').on('click', '.buy-now-btn', function () {
+    const id   = $(this).data('prop-id');
+    const prop = propMap[id];
+    if (!prop) return;
+
+    const bd = calcSaleBreakdown(prop.price);
+
+    // Build the full property payload that payment.html will read
+    const payload = {
+      // --- Property display ---
+      propTitle:    prop.title,
+      propLoc:      '📍 ' + prop.location,
+      propBeds:     prop.bedrooms  ? '🛏 ' + prop.bedrooms        : '',
+      propBaths:    prop.bathrooms ? '🛁 ' + prop.bathrooms + ' Bath' : '',
+      propArea:     prop.area      ? '📐 ' + prop.area            : '',
+      propImage:    prop.image     || '',
+      propType:     'For Sale ✅',
+      // --- Price breakdown ---
+      priceBase:    bd.priceBase,
+      priceReg:     bd.priceReg,
+      priceStamp:   bd.priceStamp,
+      priceService: bd.priceService,
+      priceTotal:   bd.priceTotal,
+      payBtnAmount: bd.payBtnAmount,
+      // --- Labels for price table rows on payment page ---
+      labelReg:     'Registration Charges',
+      labelStamp:   'Stamp Duty (1.5%)',
+      labelService: 'NestFind Service Fee',
+    };
+
+    // Save as JSON — completely safe for any property name/location
+    sessionStorage.setItem('nestfind_property', JSON.stringify(payload));
+
+    // Navigate to payment page only if logged in
+    let nfUser = null;
+    try { nfUser = JSON.parse(localStorage.getItem('nf_user') || 'null'); } catch(e) {}
+    if (!nfUser) {
+      goToPaymentIfLoggedIn(); // shows login prompt
+      return;
+    }
+    window.location.href = 'payment.html';
+  });
+
+});
+</script>
+</body>
+</html>

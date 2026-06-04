@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Booking Confirmed — NestFind</title>
+  <link rel="stylesheet" href="style.css"/>
+  <style>
+    /* ── Page ─────────────────────────────────────────────── */
+    .confirm-page {
+      min-height: calc(100vh - 60px);
+      background: var(--bg);
+      padding: 40px 20px 64px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+    }
+    .confirm-wrap {
+      max-width: 680px;
+      width: 100%;
+    }
+
+    /* ── Success banner ───────────────────────────────────── */
+    .success-card {
+      background: var(--white);
+      border-radius: 14px;
+      box-shadow: var(--shadow-lg);
+      border: 1px solid var(--border-light);
+      overflow: hidden;
+      margin-bottom: 20px;
+    }
+    .success-banner {
+      background: linear-gradient(120deg, #0a3d27 0%, #1a6b4a 100%);
+      padding: 44px 36px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .success-banner::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    }
+    .tick-circle {
+      width: 76px; height: 76px;
+      background: rgba(255,255,255,0.15);
+      border: 3px solid rgba(255,255,255,0.4);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 34px;
+      margin: 0 auto 18px;
+      position: relative; z-index: 1;
+      animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
+    }
+    @keyframes popIn { 0%{transform:scale(0);opacity:0} 100%{transform:scale(1);opacity:1} }
+    .success-banner h1 { font-size: 28px; font-weight: 800; color: #fff; margin-bottom: 7px; position: relative; z-index: 1; }
+    .success-banner p  { font-size: 14px; color: rgba(255,255,255,0.78); position: relative; z-index: 1; }
+    .booking-id-badge {
+      display: inline-block;
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.3);
+      color: #fff;
+      font-size: 13px; font-weight: 700;
+      padding: 6px 18px;
+      border-radius: 20px;
+      margin-top: 13px;
+      position: relative; z-index: 1;
+      letter-spacing: 0.5px;
+    }
+
+    /* ── Shared section style inside the card ─────────────── */
+    .conf-section {
+      padding: 22px 28px;
+      border-bottom: 1px solid var(--border-light);
+    }
+    .conf-section:last-child { border-bottom: none; }
+    .conf-section-title {
+      font-size: 11.5px;
+      font-weight: 800;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.9px;
+      margin-bottom: 16px;
+    }
+
+    /* ── Property row ─────────────────────────────────────── */
+    .confirm-prop-row {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+      background: var(--bg);
+      border-radius: 10px;
+      padding: 14px 16px;
+    }
+    .confirm-prop-img {
+      width: 64px; height: 52px;
+      background: linear-gradient(135deg, #b2d4c4, #d6eae0);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 28px; flex-shrink: 0;
+      overflow: hidden;
+    }
+    .confirm-prop-img img { width:100%; height:100%; object-fit:cover; border-radius:8px; }
+    .confirm-prop-info h3 { font-size: 14px; font-weight: 800; margin-bottom: 3px; }
+    .confirm-prop-info .loc { font-size: 12px; color: var(--text-muted); margin-bottom: 7px; }
+    .confirm-prop-info .cbadges { display: flex; gap: 7px; flex-wrap: wrap; }
+    .cbadge {
+      background: var(--primary-light); color: var(--primary);
+      font-size: 11px; font-weight: 700;
+      padding: 2px 8px; border-radius: 4px;
+    }
+
+    /* ── Details grid ─────────────────────────────────────── */
+    .details-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .detail-cell {
+      padding: 13px 17px;
+      border-bottom: 1px solid var(--border);
+      border-right: 1px solid var(--border);
+    }
+    .detail-cell:nth-child(even) { border-right: none; }
+    .detail-cell:nth-last-child(-n+2) { border-bottom: none; }
+    .detail-cell .dk {
+      font-size: 10.5px; color: var(--text-muted);
+      font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.8px; margin-bottom: 4px;
+    }
+    .detail-cell .dv { font-size: 13.5px; font-weight: 700; color: var(--text); }
+    .detail-cell .dv.green { color: var(--primary); }
+
+    /* ── Price breakdown table ────────────────────────────── */
+    .price-table { width: 100%; border-collapse: collapse; }
+    .price-table tr td {
+      padding: 9px 0;
+      font-size: 13.5px; color: var(--text-2);
+      border-bottom: 1px solid var(--border-light);
+    }
+    .price-table tr:last-child td { border-bottom: none; }
+    .price-table td:last-child { text-align: right; font-weight: 600; }
+    .price-table tr.total-row td {
+      font-weight: 800; font-size: 15px; color: var(--text);
+      padding-top: 13px; border-top: 2px solid var(--border);
+    }
+    .price-table tr.total-row td:last-child { color: var(--primary); font-size: 17px; }
+
+    /* ── Action buttons ───────────────────────────────────── */
+    .confirm-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    .action-btn {
+      background: var(--white);
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      padding: 18px 14px;
+      text-align: center;
+      cursor: pointer;
+      transition: var(--t);
+      display: block;
+      text-decoration: none;
+      color: var(--text);
+    }
+    .action-btn:hover { border-color: var(--primary); background: var(--primary-light); }
+    .action-btn .aico { font-size: 24px; margin-bottom: 7px; }
+    .action-btn h4 { font-size: 13px; font-weight: 700; margin-bottom: 3px; }
+    .action-btn p { font-size: 11.5px; color: var(--text-muted); }
+
+    /* ── What's next ──────────────────────────────────────── */
+    .whats-next {
+      background: var(--white);
+      border-radius: 12px;
+      border: 1px solid var(--border-light);
+      box-shadow: var(--shadow-sm);
+      padding: 24px 28px;
+    }
+    .whats-next h2 { font-size: 16px; font-weight: 800; margin-bottom: 18px; }
+    .next-step {
+      display: flex; gap: 16px; align-items: flex-start;
+      padding: 13px 0; border-bottom: 1px solid var(--border-light);
+    }
+    .next-step:last-child { border-bottom: none; padding-bottom: 0; }
+    .step-num {
+      width: 30px; height: 30px;
+      background: var(--primary); color: #fff;
+      border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 800; flex-shrink: 0;
+    }
+    .step-text h4 { font-size: 13.5px; font-weight: 700; margin-bottom: 3px; }
+    .step-text p  { font-size: 12.5px; color: var(--text-muted); line-height: 1.6; }
+
+    /* ── Responsive ───────────────────────────────────────── */
+    @media (max-width: 580px) {
+      .conf-section { padding: 18px 16px; }
+      .details-grid { grid-template-columns: 1fr; }
+      .detail-cell:nth-child(even) { border-right: 1px solid var(--border); }
+      .detail-cell:nth-last-child(-n+2) { border-bottom: 1px solid var(--border); }
+      .detail-cell:last-child { border-bottom: none; }
+      .confirm-actions { grid-template-columns: 1fr; }
+      .success-banner { padding: 32px 18px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="nav-inner">
+    <a href="index.html" class="logo">
+      <span class="logo-icon"><img style="width: 40px; height: 40px;" src="images/logo.png" alt="NestFind Logo"></span>
+      Nest<span>Find</span>
+    </a>
+    <div class="nav-links">
+      <a href="index.html" class="nav-link">Home</a>
+      <a href="buy.html" class="nav-link">Buy</a>
+      <a href="rent.html" class="nav-link">Rent</a>
+      <a href="sell.html" class="nav-link">Sell</a>
+      <a href="about.html" class="nav-link">About</a>
+    </div>
+    <div class="nav-actions">
+      <a href="login.html" class="btn-outline">Login</a>
+      <a href="signup.html" class="btn-primary">Sign Up</a>
+    </div>
+  </div>
+</nav>
+
+<div class="confirm-page">
+  <div class="confirm-wrap">
+
+    <!-- SUCCESS CARD -->
+    <div class="success-card">
+
+      <!-- Banner -->
+      <div class="success-banner">
+        <div class="tick-circle">✅</div>
+        <h1>Booking Confirmed!</h1>
+        <p>Your payment was successful. Congratulations on your new home! 🎉</p>
+        <div class="booking-id-badge" id="confBookingId">Booking ID: NF-2026-GOA-00000</div>
+      </div>
+
+      <!-- ① Property Summary ────────────────────────── -->
+      <div class="conf-section">
+        <div class="conf-section-title">Property</div>
+        <div class="confirm-prop-row">
+          <div class="confirm-prop-img" id="confPropThumb">🏢</div>
+          <div class="confirm-prop-info">
+            <h3 id="confPropTitle">—</h3>
+            <div class="loc" id="confPropLoc">—</div>
+            <div class="cbadges">
+              <span class="cbadge">✅ Verified</span>
+              <span class="cbadge">📑 RERA Registered</span>
+              <span class="cbadge" id="confPropType">For Sale</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ② Booking & Buyer Details ──────────────────── -->
+      <div class="conf-section">
+        <div class="conf-section-title">Booking & Buyer Information</div>
+        <div class="details-grid">
+          <div class="detail-cell">
+            <div class="dk">Booking Date</div>
+            <div class="dv" id="confDate">—</div>
+          </div>
+          <div class="detail-cell">
+            <div class="dk">Booking Time</div>
+            <div class="dv" id="confTime">—</div>
+          </div>
+          <div class="detail-cell">
+            <div class="dk">Booking ID</div>
+            <div class="dv" id="confBookingIdCell">—</div>
+          </div>
+          <div class="detail-cell">
+            <div class="dk">Transaction ID</div>
+            <div class="dv" id="confTxnId">—</div>
+          </div>
+          <div class="detail-cell">
+            <div class="dk">Payment Method</div>
+            <div class="dv" id="confMethod">—</div>
+          </div>
+          <div class="detail-cell">
+            <div class="dk">Payment Status</div>
+            <div class="dv green">✅ Successful</div>
+          </div>
+          <div class="detail-cell">
+            <div class="dk">Buyer Name</div>
+            <div class="dv" id="confBuyerName">—</div>
+          </div>
+          <div class="detail-cell">
+            <div class="dk">Mobile</div>
+            <div class="dv" id="confBuyerMobile">—</div>
+          </div>
+          <div class="detail-cell">
+            <div class="dk">Email</div>
+            <div class="dv" id="confBuyerEmail">—</div>
+          </div>
+          <div class="detail-cell">
+            <div class="dk">PAN Number</div>
+            <div class="dv" id="confBuyerPan">—</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ③ Price Breakdown ───────────────────────────── -->
+      <div class="conf-section">
+        <div class="conf-section-title">Payment Summary</div>
+        <table class="price-table">
+          <tr><td>Property Price</td><td id="confPriceBase">—</td></tr>
+          <tr><td id="confLabelReg">Registration Charges</td><td id="confPriceReg">—</td></tr>
+          <tr><td id="confLabelStamp">Stamp Duty (1.5%)</td><td id="confPriceStamp">—</td></tr>
+          <tr><td id="confLabelService">NestFind Service Fee</td><td id="confPriceService">—</td></tr>
+          <tr class="total-row"><td>Total Paid</td><td id="confPriceTotal">—</td></tr>
+        </table>
+      </div>
+
+    </div><!-- /success-card -->
+
+    <!-- ACTION BUTTONS -->
+    <div class="confirm-actions">
+      <a href="#" class="action-btn" onclick="window.print(); return false;">
+        <div class="aico">🖨️</div>
+        <h4>Download Receipt</h4>
+        <p>Print or save your booking receipt</p>
+      </a>
+      <a href="#" class="action-btn" id="emailBtn">
+        <div class="aico">📧</div>
+        <h4>Email Confirmation</h4>
+        <p id="emailBtnSub">Resend confirmation email</p>
+      </a>
+      <a href="#" class="action-btn">
+        <div class="aico">📅</div>
+        <h4>Schedule Site Visit</h4>
+        <p>Book a guided tour of your property</p>
+      </a>
+      <a href="index.html" class="action-btn">
+        <div class="aico">🏠</div>
+        <h4>Back to Home</h4>
+        <p>Explore more properties</p>
+      </a>
+    </div>
+
+    <!-- WHAT'S NEXT -->
+    <div class="whats-next">
+      <h2>🗺️ What Happens Next?</h2>
+      <div class="next-step">
+        <div class="step-num">1</div>
+        <div class="step-text">
+          <h4>Confirmation Email Sent</h4>
+          <p>A detailed booking confirmation with all documents has been sent to your registered email address within 15 minutes.</p>
+        </div>
+      </div>
+      <div class="next-step">
+        <div class="step-num">2</div>
+        <div class="step-text">
+          <h4>NestFind Relationship Manager Assigned</h4>
+          <p>A dedicated relationship manager will call you within 24 hours to walk you through the next steps.</p>
+        </div>
+      </div>
+      <div class="next-step">
+        <div class="step-num">3</div>
+        <div class="step-text">
+          <h4>Legal Verification &amp; Documentation</h4>
+          <p>Our legal team will verify all property documents and prepare the sale agreement within 5–7 working days.</p>
+        </div>
+      </div>
+      <div class="next-step">
+        <div class="step-num">4</div>
+        <div class="step-text">
+          <h4>Registration at Sub-Registrar Office</h4>
+          <p>We'll coordinate with both parties and handle all paperwork for a smooth registration.</p>
+        </div>
+      </div>
+      <div class="next-step">
+        <div class="step-num">5</div>
+        <div class="step-text">
+          <h4>🎉 Keys Handover</h4>
+          <p>After registration, receive the keys to your dream home. Our team will be present to make it seamless.</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="script.js"></script>
+<script>
+/**
+ * Confirmation Page Script
+ * Reads ALL payment data saved by payment.html from sessionStorage
+ * and populates every field on this page — including:
+ *   - Property image (the actual uploaded photo from admin dashboard)
+ *   - Property title, location, meta (beds/baths/area)
+ *   - Price breakdown with correct labels (Sale vs Rent differ)
+ *   - Buyer details (name, mobile, email, PAN)
+ *   - Booking ID, Transaction ID, date, time, payment method
+ */
+$(document).ready(function () {
+
+  const raw  = sessionStorage.getItem('nestfind_payment');
+  const data = raw ? JSON.parse(raw) : null;
+
+  if (!data) {
+    // User landed here directly without going through payment — show safe defaults
+    $('#confBookingId').text('Booking ID: NF-2026-GOA-DEMO');
+    $('#confBookingIdCell').text('NF-2026-GOA-DEMO');
+    $('#confTxnId').text('TXN0000000000');
+    $('#confDate').text(new Date().toLocaleDateString('en-IN', { day:'numeric', month:'long', year:'numeric' }));
+    $('#confTime').text(new Date().toLocaleTimeString('en-IN', { hour:'2-digit', minute:'2-digit' }) + ' IST');
+    return;
+  }
+
+  // ── 1. Booking meta ──────────────────────────────────────────
+  $('#confBookingId').text('Booking ID: ' + data.bookingId);
+  $('#confBookingIdCell').text(data.bookingId);
+  $('#confTxnId').text(data.txnId);
+  $('#confDate').text(data.bookingDate);
+  $('#confTime').text(data.bookingTime);
+  $('#confMethod').text(data.payMethod);
+
+  // ── 2. Property title, location, type badge ──────────────────
+  $('#confPropTitle').text(data.propTitle || '—');
+  $('#confPropLoc').text(data.propLoc     || '—');
+  $('#confPropType').text(data.propType   || '—');
+
+  // ── 3. Property image (the actual photo uploaded by admin) ───
+  const $thumb = $('#confPropThumb');
+  if (data.propImage) {
+    // Build an <img> and inject into the thumbnail box
+    const $img = $('<img>')
+      .attr('src', data.propImage)
+      .attr('alt', data.propTitle || 'Property')
+      .css({ width:'100%', height:'100%', objectFit:'cover', borderRadius:'8px', display:'block' })
+      .on('error', function () {
+        // Image path invalid — fall back to type-appropriate emoji
+        $thumb.html(data.propType && data.propType.includes('Rent') ? '🔑' : '🏢');
+      });
+    $thumb.empty().append($img);
+  } else {
+    // No image for this property — show emoji
+    $thumb.html(data.propType && data.propType.includes('Rent') ? '🔑' : '🏢');
+  }
+
+  // ── 4. Buyer details ─────────────────────────────────────────
+  $('#confBuyerName').text(data.buyerName   || '—');
+  $('#confBuyerMobile').text(data.buyerMobile || '—');
+  $('#confBuyerEmail').text(data.buyerEmail  || '—');
+  $('#confBuyerPan').text(data.buyerPan     || '—');
+
+  // Update "resend email" subtitle with actual buyer email
+  if (data.buyerEmail) {
+    $('#emailBtnSub').text('Resend to ' + data.buyerEmail);
+  }
+
+  // ── 5. Price breakdown values ─────────────────────────────────
+  $('#confPriceBase').text(data.priceBase    || '—');
+  $('#confPriceReg').text(data.priceReg      || '—');
+  $('#confPriceStamp').text(data.priceStamp  || '—');
+  $('#confPriceService').text(data.priceTotal  ? data.priceService : '—');
+  $('#confPriceTotal').text(data.priceTotal  || '—');
+
+  // ── 6. Price row labels (Sale vs Rent use different labels) ───
+  // e.g. Sale → "Registration Charges" | Rent → "Security Deposit (2 months)"
+  if (data.labelReg)     $('#confLabelReg').text(data.labelReg);
+  if (data.labelStamp)   $('#confLabelStamp').text(data.labelStamp);
+  if (data.labelService) $('#confLabelService').text(data.labelService);
+
+});
+</script>
+</body>
+</html>

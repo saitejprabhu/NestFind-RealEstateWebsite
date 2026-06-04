@@ -1,0 +1,1002 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Payment — NestFind</title>
+  <link rel="stylesheet" href="style.css"/>
+  <style>
+    /* ── Page wrapper ─────────────────────────────────────── */
+    .payment-page {
+      background: var(--bg);
+      min-height: calc(100vh - 60px);
+      padding: 36px 0 64px;
+    }
+    .payment-center {
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    /* ── Page title row ───────────────────────────────────── */
+    .pay-heading {
+      margin-bottom: 24px;
+    }
+    .pay-heading h1 {
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+    .pay-heading p {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    /* ── Single block card ────────────────────────────────── */
+    .pay-block {
+      background: var(--white);
+      border-radius: 14px;
+      border: 1px solid var(--border-light);
+      box-shadow: var(--shadow-md);
+      overflow: hidden;
+    }
+
+    /* ── Section headers inside the block ─────────────────── */
+    .block-section {
+      padding: 22px 28px;
+      border-bottom: 1px solid var(--border-light);
+    }
+    .block-section:last-child {
+      border-bottom: none;
+    }
+    .section-label {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--text);
+      margin-bottom: 18px;
+    }
+    .section-label .sl-num {
+      width: 24px;
+      height: 24px;
+      background: var(--primary);
+      color: #fff;
+      border-radius: 50%;
+      font-size: 12px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    /* ── Property summary row ─────────────────────────────── */
+    .prop-row {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      background: var(--bg);
+      border-radius: 10px;
+      padding: 14px 16px;
+    }
+    .prop-row-img {
+      width: 64px;
+      height: 52px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #b2d4c4, #d6eae0);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      flex-shrink: 0;
+      overflow: hidden;
+    }
+    .prop-row-img img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 8px;
+    }
+    .prop-row-info { flex: 1; min-width: 0; }
+    .prop-row-title {
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .prop-row-loc {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+    .prop-row-meta {
+      display: flex;
+      gap: 12px;
+      margin-top: 6px;
+    }
+    .prop-row-meta span {
+      font-size: 11.5px;
+      color: var(--text-2);
+      font-weight: 500;
+    }
+    .prop-badge-sm {
+      background: var(--primary-light);
+      color: var(--primary);
+      font-size: 10.5px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 4px;
+      white-space: nowrap;
+    }
+
+    /* ── Price breakdown ──────────────────────────────────── */
+    .price-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .price-table tr td {
+      padding: 9px 0;
+      font-size: 13.5px;
+      color: var(--text-2);
+      border-bottom: 1px solid var(--border-light);
+    }
+    .price-table tr:last-child td { border-bottom: none; }
+    .price-table td:last-child {
+      text-align: right;
+      font-weight: 600;
+    }
+    .price-table tr.total-row td {
+      font-weight: 800;
+      font-size: 15px;
+      color: var(--text);
+      padding-top: 13px;
+      border-top: 2px solid var(--border);
+    }
+    .price-table tr.total-row td:last-child {
+      color: var(--primary);
+      font-size: 17px;
+    }
+
+    /* ── Buyer details form ───────────────────────────────── */
+    .form-row-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+    .fg { margin-bottom: 14px; }
+    .fg:last-child { margin-bottom: 0; }
+    .fg label {
+      display: block;
+      font-size: 12.5px;
+      font-weight: 700;
+      color: var(--text-2);
+      margin-bottom: 5px;
+    }
+    .fg .icw { position: relative; }
+    .fg .ic {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 14px;
+      pointer-events: none;
+    }
+    .fg .fc {
+      width: 100%;
+      padding: 10px 12px 10px 36px;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      font-size: 13.5px;
+      color: var(--text);
+      background: var(--white);
+      transition: border-color 0.18s;
+      font-family: inherit;
+    }
+    .fg .fc:focus { border-color: var(--primary); outline: none; }
+    .fg .fc.no-icon { padding-left: 12px; }
+
+    /* ── Payment method tabs ──────────────────────────────── */
+    .pay-tabs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .pay-tab {
+      border: 2px solid var(--border);
+      border-radius: 9px;
+      padding: 13px 15px;
+      cursor: pointer;
+      transition: all 0.18s;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: #fafbfa;
+    }
+    .pay-tab:hover { border-color: var(--primary); }
+    .pay-tab.selected { border-color: var(--primary); background: var(--primary-light); }
+    .pay-tab input[type="radio"] { accent-color: var(--primary); width: 15px; height: 15px; flex-shrink: 0; }
+    .tab-icon { font-size: 22px; flex-shrink: 0; }
+    .tab-label { font-size: 13px; font-weight: 700; color: var(--text); }
+    .tab-sub { font-size: 11px; color: var(--text-muted); margin-top: 1px; }
+
+    /* UPI options */
+    .upi-section, .card-section { display: none; }
+    .upi-section.active, .card-section.active { display: block; }
+
+    .upi-options {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 9px;
+      margin-bottom: 16px;
+    }
+    .upi-option {
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      padding: 11px 13px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      transition: all 0.18s;
+      background: #fafbfa;
+    }
+    .upi-option:hover { border-color: var(--primary); background: var(--primary-light); }
+    .upi-option.selected { border-color: var(--primary); background: var(--primary-light); }
+    .upi-option input[type="radio"] { accent-color: var(--primary); width: 14px; height: 14px; flex-shrink: 0; }
+    .upi-logo { font-size: 22px; flex-shrink: 0; }
+    .upi-name { font-size: 13px; font-weight: 700; }
+    .upi-desc { font-size: 11px; color: var(--text-muted); margin-top: 1px; }
+
+    .upi-divider {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 12px 0;
+    }
+    .upi-divider::before, .upi-divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+    .upi-divider span { font-size: 11px; color: var(--text-muted); font-weight: 600; white-space: nowrap; }
+
+    /* Card section */
+    .card-preview {
+      background: linear-gradient(135deg, #1a4d33 0%, #1a6b4a 60%, #22925f 100%);
+      border-radius: 11px;
+      padding: 20px 22px;
+      margin-bottom: 18px;
+      color: #fff;
+      position: relative;
+      overflow: hidden;
+    }
+    .card-preview::before {
+      content: '';
+      position: absolute;
+      top: -30px; right: -30px;
+      width: 110px; height: 110px;
+      background: rgba(255,255,255,0.07);
+      border-radius: 50%;
+    }
+    .card-chip { font-size: 20px; margin-bottom: 10px; }
+    .card-number-display { font-size: 15px; font-weight: 700; letter-spacing: 3px; margin-bottom: 12px; color: rgba(255,255,255,0.95); font-family: monospace; }
+    .card-bottom { display: flex; justify-content: space-between; align-items: flex-end; }
+    .card-holder-label, .card-expiry-label { font-size: 8px; text-transform: uppercase; letter-spacing: 1px; color: rgba(255,255,255,0.55); margin-bottom: 2px; }
+    .card-holder-name, .card-expiry-val { font-size: 12px; font-weight: 700; color: #fff; text-transform: uppercase; letter-spacing: 0.8px; }
+    .card-brand { font-size: 20px; }
+    .frow { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+    /* ── Secure badge ─────────────────────────────────────── */
+    .secure-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--primary-light);
+      border: 1px solid #b2d4c4;
+      border-radius: 7px;
+      padding: 9px 14px;
+      font-size: 12.5px;
+      color: var(--primary);
+      font-weight: 600;
+      margin-bottom: 0;
+    }
+
+    /* ── Pay button ───────────────────────────────────────── */
+    .pay-button-section {
+      padding: 24px 28px;
+      background: #f8faf9;
+      border-top: 1px solid var(--border-light);
+    }
+    .btn-pay {
+      width: 100%;
+      background: var(--primary);
+      color: #fff;
+      font-weight: 800;
+      font-size: 16px;
+      padding: 16px;
+      border-radius: 10px;
+      border: none;
+      cursor: pointer;
+      transition: all 0.22s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      letter-spacing: 0.3px;
+    }
+    .btn-pay:hover {
+      background: var(--primary-dark);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(26,107,74,0.3);
+    }
+    .btn-pay:active { transform: translateY(0); }
+    .pay-logos {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 14px;
+    }
+    .pay-logos span { font-size: 11px; color: var(--text-muted); }
+    .pay-logo-chip {
+      font-size: 11.5px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+
+    /* ── Processing overlay ───────────────────────────────── */
+    #processingOverlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.6);
+      z-index: 999;
+      align-items: center;
+      justify-content: center;
+    }
+    .processing-box {
+      background: #fff;
+      border-radius: 16px;
+      padding: 48px 40px;
+      text-align: center;
+      max-width: 380px;
+      width: 90%;
+      box-shadow: 0 24px 60px rgba(0,0,0,0.2);
+    }
+    .processing-box h3 { font-size: 19px; font-weight: 800; margin-bottom: 8px; }
+    .processing-box p { font-size: 13px; color: var(--text-muted); }
+    .progress-bar-wrap { margin-top: 20px; height: 6px; background: #e8ede9; border-radius: 4px; overflow: hidden; }
+    #progressBar { height: 100%; background: var(--primary); width: 0%; transition: width 0.3s ease; border-radius: 4px; }
+    @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+
+    /* ── Responsive ───────────────────────────────────────── */
+    @media (max-width: 560px) {
+      .block-section { padding: 18px 18px; }
+      .pay-button-section { padding: 20px 18px; }
+      .form-row-2 { grid-template-columns: 1fr; }
+      .frow { grid-template-columns: 1fr; }
+      .upi-options { grid-template-columns: 1fr; }
+      .pay-tabs { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="nav-inner">
+    <a href="index.html" class="logo">
+      <span class="logo-icon"><img style="width: 40px; height: 40px;" src="images/logo.png" alt="NestFind Logo"></span>
+      Nest<span>Find</span>
+    </a>
+    <div class="nav-links">
+      <a href="index.html" class="nav-link">Home</a>
+      <a href="buy.html" class="nav-link active">Buy</a>
+      <a href="rent.html" class="nav-link">Rent</a>
+      <a href="sell.html" class="nav-link">Sell</a>
+      <a href="about.html" class="nav-link">About</a>
+    </div>
+    <div class="nav-actions">
+      <a href="login.html" class="btn-outline">Login</a>
+      <a href="signup.html" class="btn-primary">Sign Up</a>
+    </div>
+  </div>
+</nav>
+
+<!-- PAYMENT PAGE -->
+<div class="payment-page">
+  <div class="payment-center">
+
+    <div class="pay-heading">
+      <h1>Complete Your Booking</h1>
+      <p>Review your property details, fill in your information, and pay securely below.</p>
+    </div>
+
+    <!-- ══════════════════════════════════════
+         SINGLE PAYMENT BLOCK
+    ══════════════════════════════════════ -->
+    <div class="pay-block">
+
+      <!-- ① PROPERTY DETAILS ─────────────────────────── -->
+      <div class="block-section">
+        <div class="section-label">
+          <span class="sl-num">1</span>
+          Property Details
+        </div>
+        <div class="prop-row">
+          <!-- Image populated by JS from sessionStorage -->
+          <div class="prop-row-img" id="propThumb">🏢</div>
+          <div class="prop-row-info">
+            <div class="prop-row-title" id="propTitle">Loading property…</div>
+            <div class="prop-row-loc"   id="propLoc">📍 —</div>
+            <div class="prop-row-meta">
+              <span id="propBeds"></span>
+              <span id="propBaths"></span>
+              <span id="propArea"></span>
+            </div>
+          </div>
+          <div class="prop-badge-sm" id="propTypeBadge">—</div>
+        </div>
+      </div>
+
+      <!-- ② PRICE BREAKDOWN ──────────────────────────── -->
+      <div class="block-section">
+        <div class="section-label">
+          <span class="sl-num">2</span>
+          Price Breakdown
+        </div>
+        <table class="price-table">
+          <tr>
+            <td>Property Price</td>
+            <td id="priceBase">—</td>
+          </tr>
+          <tr>
+            <!-- Label changes: "Registration Charges" for Sale, "Security Deposit" for Rent -->
+            <td id="labelReg">Registration Charges</td>
+            <td id="priceReg">—</td>
+          </tr>
+          <tr>
+            <td id="labelStamp">Stamp Duty (1.5%)</td>
+            <td id="priceStamp">—</td>
+          </tr>
+          <tr>
+            <td id="labelService">NestFind Service Fee</td>
+            <td id="priceService">—</td>
+          </tr>
+          <tr class="total-row">
+            <td>Total Payable</td>
+            <td id="priceTotal">—</td>
+          </tr>
+        </table>
+      </div>
+
+      <!-- ③ BUYER DETAILS ────────────────────────────── -->
+      <div class="block-section">
+        <div class="section-label">
+          <span class="sl-num">3</span>
+          Buyer Details
+        </div>
+        <div class="form-row-2">
+          <div class="fg">
+            <label>Full Name *</label>
+            <div class="icw">
+              <span class="ic">👤</span>
+              <input class="fc" type="text" id="buyerName" placeholder="Your full name" required/>
+            </div>
+          </div>
+          <div class="fg">
+            <label>Mobile Number *</label>
+            <div class="icw">
+              <span class="ic">📱</span>
+              <input class="fc" type="tel" id="buyerMobile" placeholder="10-digit number" maxlength="10" required/>
+            </div>
+          </div>
+        </div>
+        <div class="fg">
+          <label>Email Address *</label>
+          <div class="icw">
+            <span class="ic">📧</span>
+            <input class="fc" type="email" id="buyerEmail" placeholder="your@email.com" required/>
+          </div>
+        </div>
+        <div class="fg" style="margin-bottom:0;">
+          <label>PAN Number (required for property transaction) *</label>
+          <div class="icw">
+            <span class="ic">🪪</span>
+            <input class="fc" type="text" id="buyerPan" maxlength="10" placeholder="ABCDE1234F" style="text-transform:uppercase;" required/>
+          </div>
+        </div>
+      </div>
+
+      <!-- ④ PAYMENT METHOD ───────────────────────────── -->
+      <div class="block-section">
+        <div class="section-label">
+          <span class="sl-num">4</span>
+          Payment Method
+        </div>
+
+        <!-- 2 big toggle buttons: UPI | Card -->
+        <div class="pay-tabs">
+          <div class="pay-tab selected" id="tabUPI" onclick="switchTab('upi')">
+            <span class="tab-icon">📲</span>
+            <div>
+              <div class="tab-label">UPI</div>
+              <div class="tab-sub">GPay · PhonePe · Paytm · BHIM</div>
+            </div>
+          </div>
+          <div class="pay-tab" id="tabCard" onclick="switchTab('card')">
+            <span class="tab-icon">💳</span>
+            <div>
+              <div class="tab-label">Credit / Debit Card</div>
+              <div class="tab-sub">Visa · Mastercard · RuPay</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ══ UPI PANEL (shown by default) ══ -->
+        <div id="upiSection">
+
+          <!-- 4 UPI app tiles in a 2×2 grid -->
+          <div class="upi-options">
+
+            <div class="upi-option selected" id="upiOptGpay" onclick="selectUpiApp('gpay')">
+              <span class="upi-logo">🟢</span>
+              <div>
+                <div class="upi-name">Google Pay</div>
+                <div class="upi-desc">Pay via GPay UPI</div>
+              </div>
+            </div>
+
+            <div class="upi-option" id="upiOptPhonepe" onclick="selectUpiApp('phonepe')">
+              <span class="upi-logo">💜</span>
+              <div>
+                <div class="upi-name">PhonePe</div>
+                <div class="upi-desc">India's most used UPI</div>
+              </div>
+            </div>
+
+            <div class="upi-option" id="upiOptPaytm" onclick="selectUpiApp('paytm')">
+              <span class="upi-logo">🔵</span>
+              <div>
+                <div class="upi-name">Paytm</div>
+                <div class="upi-desc">Pay via Paytm UPI</div>
+              </div>
+            </div>
+
+            <div class="upi-option" id="upiOptBhim" onclick="selectUpiApp('bhim')">
+              <span class="upi-logo">🇮🇳</span>
+              <div>
+                <div class="upi-name">BHIM UPI</div>
+                <div class="upi-desc">Govt. of India UPI</div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Hidden radio inputs (JS sets value when app tile is clicked) -->
+          <input type="hidden" id="selectedUpiApp" value="gpay"/>
+
+          <!-- UPI ID input -->
+          <div class="upi-divider"><span>or enter UPI ID directly</span></div>
+          <div class="fg" style="margin-bottom:0;">
+            <label>UPI ID <span style="font-weight:400;color:var(--text-muted);">(optional if app selected above)</span></label>
+            <div class="icw">
+              <span class="ic" style="font-weight:800;font-size:15px;color:var(--primary);">@</span>
+              <input class="fc" type="text" id="upiId"
+                     placeholder="yourname@okicici  ·  9876543210@paytm  ·  name@ybl"/>
+            </div>
+            <div style="font-size:11px;color:var(--text-muted);margin-top:5px;">
+              @okhdfcbank (GPay) · @ybl (PhonePe) · @paytm · @upi (BHIM) · @okicici
+            </div>
+          </div>
+        </div>
+
+        <!-- ══ CARD PANEL (hidden by default) ══ -->
+        <div id="cardSection" style="display:none;">
+          <!-- Live card preview -->
+          <div class="card-preview">
+            <div class="card-chip">💳</div>
+            <div class="card-number-display" id="cardNumDisplay">•••• •••• •••• ••••</div>
+            <div class="card-bottom">
+              <div>
+                <div class="card-holder-label">Card Holder</div>
+                <div class="card-holder-name" id="cardNameDisplay">YOUR NAME</div>
+              </div>
+              <div>
+                <div class="card-expiry-label">Expires</div>
+                <div class="card-expiry-val" id="cardExpDisplay">MM/YY</div>
+              </div>
+              <div class="card-brand" id="cardBrandIcon">💳</div>
+            </div>
+          </div>
+          <!-- Card fields -->
+          <div class="fg">
+            <label>Card Number *</label>
+            <div class="icw">
+              <span class="ic">💳</span>
+              <input class="fc" type="text" id="cardNum" maxlength="19"
+                     placeholder="1234 5678 9012 3456" oninput="formatCard(this)"/>
+            </div>
+          </div>
+          <div class="fg">
+            <label>Cardholder Name *</label>
+            <div class="icw">
+              <span class="ic">👤</span>
+              <input class="fc" type="text" id="cardName" placeholder="Name as on card"
+                     oninput="document.getElementById('cardNameDisplay').textContent = this.value.toUpperCase() || 'YOUR NAME'"/>
+            </div>
+          </div>
+          <div class="frow">
+            <div class="fg" style="margin-bottom:0;">
+              <label>Expiry Date *</label>
+              <input class="fc no-icon" type="text" id="cardExp"
+                     maxlength="5" placeholder="MM/YY" oninput="formatExpiry(this)"/>
+            </div>
+            <div class="fg" style="margin-bottom:0;">
+              <label>CVV *</label>
+              <div class="icw">
+                <span class="ic">🔒</span>
+                <input class="fc" type="password" id="cardCvv" maxlength="4" placeholder="•••"/>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Secure badge — always visible -->
+        <div class="secure-badge" style="margin-top:18px;">
+          <span>🔒</span> Your payment is secured with 256-bit SSL encryption &amp; 3D Secure
+        </div>
+      </div>
+
+      <!-- Hidden state inputs — JS reads these in processPayment() -->
+      <input type="hidden" id="activePayMethod" value="upi"/>
+
+      <!-- ⑤ PAY BUTTON — at the very bottom of the block ─ -->
+      <div class="pay-button-section">
+        <button class="btn-pay" onclick="processPayment()">
+          <span>🔐</span>
+          <span id="payBtnText">Pay ₹87,50,000 Securely</span>
+        </button>
+        <div class="pay-logos">
+          <span>Accepted:</span>
+          <span class="pay-logo-chip" style="color:#1a1f71;">VISA</span>
+          <span class="pay-logo-chip" style="color:#eb001b;">MC</span>
+          <span class="pay-logo-chip" style="color:#007dc5;">RuPay</span>
+          <span class="pay-logo-chip" style="color:#4285f4;">GPay</span>
+          <span class="pay-logo-chip" style="color:#5f259f;">PhonePe</span>
+          <span class="pay-logo-chip" style="color:#00baf2;">Paytm</span>
+        </div>
+      </div>
+
+    </div><!-- /pay-block -->
+  </div><!-- /payment-center -->
+</div><!-- /payment-page -->
+
+<!-- PROCESSING OVERLAY -->
+<div id="processingOverlay">
+  <div class="processing-box">
+    <div id="processingSpinner" style="font-size:48px; margin-bottom:18px; display:inline-block;">⏳</div>
+    <h3 id="processingTitle">Processing Payment…</h3>
+    <p id="processingText">Please do not close this window or press back.</p>
+    <div class="progress-bar-wrap">
+      <div id="progressBar"></div>
+    </div>
+  </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="script.js"></script>
+<script>
+/**
+ * Payment Page Script
+ * - Reads property data saved by buy.html / rent.html from sessionStorage
+ *   and populates the property details block (including image).
+ * - Saves all buyer + property details to sessionStorage before redirecting
+ *   so confirmation.html can read and display the exact same data.
+ * - Handles UPI/Card tab switching, card live preview, and payment animation.
+ */
+
+// ── Auth guard: block payment page if user is not logged in ──────
+(function authGuard() {
+  let user = null;
+  try { user = JSON.parse(localStorage.getItem('nf_user') || 'null'); } catch(e) {}
+  if (!user) {
+    // Hide payment content and show login prompt overlay
+    document.addEventListener('DOMContentLoaded', function() {
+      // Blank out the whole payment page
+      const page = document.querySelector('.payment-page') || document.body;
+      page.style.display = 'none';
+
+      // Inject full-screen message
+      const overlay = document.createElement('div');
+      overlay.style.cssText = [
+        'position:fixed','inset:0','background:#f8fafc',
+        'display:flex','align-items:center','justify-content:center',
+        'z-index:9999','font-family:inherit'
+      ].join(';');
+      overlay.innerHTML = `
+        <div style="text-align:center;max-width:420px;padding:40px 32px;background:#fff;border-radius:20px;box-shadow:0 8px 40px rgba(0,0,0,0.12);">
+          <div style="font-size:52px;margin-bottom:16px;">🔒</div>
+          <h2 style="margin:0 0 10px;font-size:22px;color:#1e293b;">Login Required</h2>
+          <p style="margin:0 0 28px;font-size:15px;color:#64748b;line-height:1.6;">
+            Please login before proceeding to payment.
+          </p>
+          <a href="login.html" style="display:inline-block;padding:12px 32px;background:#e85d26;color:#fff;border-radius:10px;text-decoration:none;font-weight:700;font-size:15px;margin-right:10px;">
+            Login
+          </a>
+          <a href="index.html" style="display:inline-block;padding:12px 24px;background:#f1f5f9;color:#1e293b;border-radius:10px;text-decoration:none;font-weight:600;font-size:15px;">
+            Go Home
+          </a>
+        </div>`;
+      document.body.appendChild(overlay);
+    });
+  }
+})();
+
+// ── On load: populate ALL property details from sessionStorage ────
+(function populatePropertyDetails() {
+  const raw = sessionStorage.getItem('nestfind_property');
+
+  // Show a warning row if user landed here without clicking Buy/Rent Now
+  if (!raw) {
+    document.getElementById('propTitle').textContent = '⚠️ No property selected';
+    document.getElementById('propLoc').textContent   = 'Please go back and click Buy Now or Rent Now on a listing.';
+    document.getElementById('payBtnText').textContent = 'Pay Securely';
+    return;
+  }
+
+  const d = JSON.parse(raw);
+
+  // ── 1. Property title, location, type badge ──────────────────
+  document.getElementById('propTitle').textContent    = d.propTitle    || '—';
+  document.getElementById('propLoc').textContent      = d.propLoc      || '—';
+  document.getElementById('propTypeBadge').textContent = d.propType    || '—';
+
+  // ── 2. Meta chips — hide the span entirely if data is empty ──
+  const bedsEl  = document.getElementById('propBeds');
+  const bathsEl = document.getElementById('propBaths');
+  const areaEl  = document.getElementById('propArea');
+  if (d.propBeds)  { bedsEl.textContent  = d.propBeds;  bedsEl.style.display  = ''; }
+  else               bedsEl.style.display  = 'none';
+  if (d.propBaths) { bathsEl.textContent = d.propBaths; bathsEl.style.display = ''; }
+  else               bathsEl.style.display = 'none';
+  if (d.propArea)  { areaEl.textContent  = d.propArea;  areaEl.style.display  = ''; }
+  else               areaEl.style.display  = 'none';
+
+  // ── 3. Property image ─────────────────────────────────────────
+  const thumb = document.getElementById('propThumb');
+  if (d.propImage) {
+    const img = document.createElement('img');
+    img.src   = d.propImage;   // path is already root-relative (uploads/properties/xxx.jpg)
+    img.alt   = d.propTitle || 'Property';
+    img.style.cssText = 'width:100%;height:100%;object-fit:cover;border-radius:8px;display:block;';
+    img.onerror = function () {
+      // Image failed to load — fall back to emoji based on type
+      thumb.innerHTML = d.propType && d.propType.includes('Rent') ? '🔑' : '🏢';
+    };
+    thumb.innerHTML = '';
+    thumb.appendChild(img);
+  } else {
+    // No image uploaded for this property — show type-appropriate emoji
+    thumb.innerHTML = d.propType && d.propType.includes('Rent') ? '🔑' : '🏢';
+  }
+
+  // ── 4. Price breakdown values ─────────────────────────────────
+  document.getElementById('priceBase').textContent    = d.priceBase    || '—';
+  document.getElementById('priceReg').textContent     = d.priceReg     || '—';
+  document.getElementById('priceStamp').textContent   = d.priceStamp   || '—';
+  document.getElementById('priceService').textContent = d.priceService || '—';
+  document.getElementById('priceTotal').textContent   = d.priceTotal   || '—';
+
+  // ── 5. Price row labels (differ for Sale vs Rent) ─────────────
+  // e.g. "Registration Charges" for Sale, "Security Deposit (2 months)" for Rent
+  if (d.labelReg)     document.getElementById('labelReg').textContent     = d.labelReg;
+  if (d.labelStamp)   document.getElementById('labelStamp').textContent   = d.labelStamp;
+  if (d.labelService) document.getElementById('labelService').textContent = d.labelService;
+
+  // ── 6. Pay button amount ──────────────────────────────────────
+  document.getElementById('payBtnText').textContent =
+    'Pay ' + (d.payBtnAmount || '') + ' Securely';
+})();
+
+// ── Tab switching: UPI ↔ Card ────────────────────────────────────
+// Shows/hides the correct panel and highlights the active tab button.
+function switchTab(type) {
+  const isUpi = type === 'upi';
+
+  // Toggle tab highlight
+  document.getElementById('tabUPI').classList.toggle('selected', isUpi);
+  document.getElementById('tabCard').classList.toggle('selected', !isUpi);
+
+  // Show / hide panels
+  document.getElementById('upiSection').style.display  = isUpi  ? 'block' : 'none';
+  document.getElementById('cardSection').style.display = !isUpi ? 'block' : 'none';
+
+  // Store which method is active (read by processPayment)
+  document.getElementById('activePayMethod').value = type;
+}
+
+// ── UPI app tile selection ────────────────────────────────────────
+// Highlights the clicked app tile and stores its value.
+function selectUpiApp(value) {
+  // Remove selected from all tiles
+  ['upiOptGpay','upiOptPhonepe','upiOptPaytm','upiOptBhim'].forEach(function (id) {
+    document.getElementById(id).classList.remove('selected');
+  });
+  // Highlight chosen tile
+  const idMap = { gpay:'upiOptGpay', phonepe:'upiOptPhonepe', paytm:'upiOptPaytm', bhim:'upiOptBhim' };
+  document.getElementById(idMap[value]).classList.add('selected');
+  // Store value
+  document.getElementById('selectedUpiApp').value = value;
+}
+
+// ── Card live preview ────────────────────────────────────────────
+function formatCard(input) {
+  let val = input.value.replace(/\D/g, '').substring(0, 16);
+  val = val.replace(/(.{4})/g, '$1 ').trim();
+  input.value = val;
+  const raw = val.replace(/\s/g, '');
+  const display = (raw.substring(0,4)||'••••') + ' ' +
+                  (raw.length > 4 ? raw.substring(4,8) : '••••') + ' •••• ' +
+                  (raw.length > 12 ? raw.substring(12,16) : '••••');
+  document.getElementById('cardNumDisplay').textContent = display;
+  const brands = {'4':'VISA','5':'MC','6':'RuPay','3':'AMEX'};
+  const icons  = {'VISA':'🔵','MC':'🔴','RuPay':'🟠','AMEX':'🟦','':'💳'};
+  const brand  = brands[raw[0]] || '';
+  document.getElementById('cardBrandIcon').textContent = icons[brand] || '💳';
+}
+
+function formatExpiry(input) {
+  let val = input.value.replace(/\D/g,'');
+  if (val.length > 2) val = val.substring(0,2) + '/' + val.substring(2,4);
+  input.value = val;
+  document.getElementById('cardExpDisplay').textContent = val || 'MM/YY';
+}
+
+// ── Process payment ──────────────────────────────────────────────
+function processPayment() {
+  // Collect buyer details
+  const name   = document.getElementById('buyerName').value.trim();
+  const mobile = document.getElementById('buyerMobile').value.trim();
+  const email  = document.getElementById('buyerEmail').value.trim();
+  const pan    = document.getElementById('buyerPan').value.trim();
+
+  // Basic validation
+  if (!name || !mobile || !email || !pan) {
+    alert('Please fill in all Buyer Details before proceeding.');
+    document.getElementById('buyerName').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return;
+  }
+  if (mobile.length < 10) {
+    alert('Please enter a valid 10-digit mobile number.');
+    return;
+  }
+  if (!/^[A-Z]{5}[0-9]{4}[A-Z]$/.test(pan.toUpperCase())) {
+    alert('Please enter a valid PAN number (e.g. ABCDE1234F).');
+    return;
+  }
+
+  // Determine chosen payment method label for confirmation page
+  const method = document.getElementById('activePayMethod').value;
+  let methodLabel = 'UPI';
+  if (method === 'upi') {
+    const appNames = { gpay:'Google Pay', phonepe:'PhonePe', paytm:'Paytm', bhim:'BHIM UPI' };
+    const upiApp   = document.getElementById('selectedUpiApp').value;
+    const upiId    = document.getElementById('upiId').value.trim();
+    methodLabel    = 'UPI — ' + (upiId ? upiId : (appNames[upiApp] || 'UPI'));
+  } else {
+    const cardName = document.getElementById('cardName').value.trim();
+    methodLabel = 'Card' + (cardName ? ' — ' + cardName : '');
+  }
+
+  // Generate booking ID and transaction ID
+  const bookingId = 'NF-' + new Date().getFullYear() + '-GOA-' + Math.floor(10000 + Math.random() * 90000);
+  const txnId     = 'TXN' + Math.floor(1000000000 + Math.random() * 9000000000);
+
+  // Build date/time strings
+  const now = new Date();
+  const dateStr = now.toLocaleDateString('en-IN', { day:'numeric', month:'long', year:'numeric' });
+  const timeStr = now.toLocaleTimeString('en-IN', { hour:'2-digit', minute:'2-digit' }) + ' IST';
+
+  // Save all payment data to sessionStorage → confirmation page reads this
+  const propRaw   = sessionStorage.getItem('nestfind_property');
+  const propStore = propRaw ? JSON.parse(propRaw) : {};
+
+  const paymentData = {
+    // Property info (read from the live DOM which was populated from sessionStorage)
+    propTitle:    document.getElementById('propTitle').textContent,
+    propLoc:      document.getElementById('propLoc').textContent,
+    propBeds:     document.getElementById('propBeds').textContent,
+    propBaths:    document.getElementById('propBaths').textContent,
+    propArea:     document.getElementById('propArea').textContent,
+    propType:     document.getElementById('propTypeBadge').textContent,
+    propImage:    propStore.propImage || '',
+    // Price breakdown values
+    priceBase:    document.getElementById('priceBase').textContent,
+    priceReg:     document.getElementById('priceReg').textContent,
+    priceStamp:   document.getElementById('priceStamp').textContent,
+    priceService: document.getElementById('priceService').textContent,
+    priceTotal:   document.getElementById('priceTotal').textContent,
+    // Price row labels (so confirmation page shows "Security Deposit" not "Registration Charges" for Rent)
+    labelReg:     document.getElementById('labelReg').textContent,
+    labelStamp:   document.getElementById('labelStamp').textContent,
+    labelService: document.getElementById('labelService').textContent,
+    // Buyer details
+    buyerName:    name,
+    buyerMobile:  mobile,
+    buyerEmail:   email,
+    buyerPan:     pan.toUpperCase(),
+    // Payment meta
+    payMethod:    methodLabel,
+    bookingId:    bookingId,
+    txnId:        txnId,
+    bookingDate:  dateStr,
+    bookingTime:  timeStr,
+  };
+  sessionStorage.setItem('nestfind_payment', JSON.stringify(paymentData));
+
+  // ── Show processing overlay ──────────────────────────────────
+  const overlay = document.getElementById('processingOverlay');
+  overlay.style.display = 'flex';
+
+  const bar     = document.getElementById('progressBar');
+  const spinner = document.getElementById('processingSpinner');
+  const pTitle  = document.getElementById('processingTitle');
+  const pText   = document.getElementById('processingText');
+
+  // Animate progress bar steps
+  const steps = [
+    { pct: 20,  delay: 400,  icon: '⏳', title: 'Verifying Details…',       text: 'Checking your payment information.' },
+    { pct: 50,  delay: 1100, icon: '🔐', title: 'Securing Transaction…',     text: 'Encrypting with 256-bit SSL.' },
+    { pct: 75,  delay: 1900, icon: '🏦', title: 'Contacting Bank…',          text: 'Awaiting authorization from your bank.' },
+    { pct: 90,  delay: 2800, icon: '💾', title: 'Saving Booking…',           text: 'Recording your payment securely.' },
+    { pct: 100, delay: 3600, icon: '✅', title: 'Payment Successful!',        text: 'Redirecting to your confirmation…' },
+  ];
+
+  steps.forEach(s => {
+    setTimeout(() => {
+      bar.style.width      = s.pct + '%';
+      spinner.textContent  = s.icon;
+      pTitle.textContent   = s.title;
+      pText.textContent    = s.text;
+      spinner.style.animation = s.pct < 100 ? 'spin 1s linear infinite' : 'none';
+    }, s.delay);
+  });
+
+  /**
+   * POST payment data to save_payment.php so it is recorded in the
+   * MySQL `payments` table. We fire this at step 3 (after bank step)
+   * so the animation stays smooth. Failure is non-blocking — the user
+   * still reaches confirmation; the error is logged to console only.
+   */
+  setTimeout(function () {
+    fetch('api/save_payment.php', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify(paymentData),
+    })
+    .then(function (res) { return res.json(); })
+    .then(function (res) {
+      if (res.success) {
+        console.log('✅ Payment saved to DB — Booking ID:', res.booking_id);
+      } else {
+        console.warn('⚠️ Payment DB save warning:', res.message);
+      }
+    })
+    .catch(function (err) {
+      // Network/server error — log only, don't block the user flow
+      console.error('❌ Payment DB save error:', err);
+    });
+  }, 2000); // Fire at ~2 s into the animation
+
+  // Redirect to confirmation page after animation completes
+  setTimeout(() => { window.location.href = 'confirmation.html'; }, 4400);
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>NestFind — Find Your Dream Home</title>
+  <link rel="stylesheet" href="style.css"/>
+  <style>
+    /* Skeleton shimmer for loading state */
+    .skeleton {
+      background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.4s infinite;
+      border-radius: 8px;
+    }
+    @keyframes shimmer { 0%{background-position:-200% 0}100%{background-position:200% 0} }
+    .skel-card { height: 300px; border-radius: 12px; }
+    /* Empty state */
+    .empty-state {
+      text-align: center;
+      padding: 48px 24px;
+      color: var(--text-muted);
+      grid-column: 1 / -1;
+    }
+    .empty-state .es-icon { font-size: 48px; margin-bottom: 12px; }
+    .empty-state h3 { font-size: 17px; font-weight: 800; color: var(--text); margin-bottom: 6px; }
+    .empty-state p { font-size: 13px; }
+  </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="nav-inner">
+    <a href="index.html" class="logo">
+      <span class="logo-icon"><img style="width: 40px; height: 40px;" src="images/logo.png" alt="NestFind Logo"></span>
+      Nest<span>Find</span>
+    </a>
+    <div class="nav-links">
+      <a href="index.html" class="nav-link active">Home</a>
+      <a href="buy.html" class="nav-link">Buy</a>
+      <a href="rent.html" class="nav-link">Rent</a>
+      <a href="sell.html" class="nav-link">Sell</a>
+      <a href="about.html" class="nav-link">About</a>
+    </div>
+    <div class="nav-actions">
+      <a href="login.html" class="btn-outline">Login</a>
+      <a href="signup.html" class="btn-primary">Sign Up</a>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-inner">
+    <div class="hero-tag">Goa's #1 Property Platform</div>
+    <h1>Find Your Perfect<br/><em>Dream Home</em></h1>
+    <p>Explore thousands of verified properties for sale and rent across Goa. Trusted by 5 million+ happy families.</p>
+    <div class="hero-search">
+      <span style="font-size:18px; padding-left:6px;">
+        <span class="logo-icon"><img style="width: 20px; height: 20px;" src="images/search.png" alt="Search"></span>
+      </span>
+      <input type="text" id="heroSearchInput" placeholder="Search by city, locality or project name…"/>
+      <button class="btn-search">Search</button>
+    </div>
+    <div class="hero-stats">
+      <div class="stat"><div class="stat-num" id="statListings">—</div><div class="stat-label">Active Listings</div></div>
+      <div class="stat"><div class="stat-num" id="statUsers">—</div><div class="stat-label">Registered Users</div></div>
+      <div class="stat"><div class="stat-num" id="statCities">—</div><div class="stat-label">Cities Covered</div></div>
+      <div class="stat"><div class="stat-num" id="statPayments">—</div><div class="stat-label">Completed Bookings</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURED BUY PROPERTIES — dynamically loaded from DB (is_featured=1, type=Sale) -->
+<section class="section" id="buy">
+  <div class="container">
+    <div class="sec-header">
+      <h2 class="sec-title">Featured Properties for Sale</h2>
+      <a href="buy.html" class="see-all">See All ›</a>
+    </div>
+    <div class="filter-bar" id="saleFilterBar">
+      <span class="chip active" data-filter="all">All</span>
+      <span class="chip" data-filter="apartment">Apartment</span>
+      <span class="chip" data-filter="villa">Villa</span>
+      <span class="chip" data-filter="plot">Plot</span>
+      <span class="chip" data-filter="under50">Under ₹50L</span>
+      <span class="chip" data-filter="50to1cr">₹50L–₹1Cr</span>
+      <span class="chip" data-filter="above1cr">₹1Cr+</span>
+    </div>
+    <!-- Grid populated by JS; skeletons shown while loading -->
+    <div class="props-grid" id="homeSaleGrid">
+      <div class="skeleton skel-card"></div>
+      <div class="skeleton skel-card"></div>
+      <div class="skeleton skel-card"></div>
+    </div>
+  </div>
+</section>
+
+<!-- TOP RENTALS — dynamically loaded from DB (is_featured=1, type=Rent) -->
+<section class="section">
+  <div class="container">
+    <div class="sec-header">
+      <h2 class="sec-title">Top Rentals Near You</h2>
+      <a href="rent.html" class="see-all">See All ›</a>
+    </div>
+    <div class="props-grid" id="homeRentGrid">
+      <div class="skeleton skel-card"></div>
+      <div class="skeleton skel-card"></div>
+      <div class="skeleton skel-card"></div>
+    </div>
+  </div>
+</section>
+
+<!-- WHY CHOOSE US -->
+<section class="section" style="background: var(--white); border-top: 1px solid var(--border-light); border-bottom: 1px solid var(--border-light);">
+  <div class="container">
+    <div class="sec-header" style="margin-bottom: 28px;">
+      <h2 class="sec-title">Why Choose NestFind?</h2>
+    </div>
+    <div class="features-grid">
+      <div class="feat-card"><div class="feat-icon">✅</div><h3>100% Verified Listings</h3><p>Every property on NestFind is verified by our expert team before being listed.</p></div>
+      <div class="feat-card"><div class="feat-icon">⚡</div><h3>Instant Shortlisting</h3><p>Save and compare properties in real time. Schedule visits with one click.</p></div>
+      <div class="feat-card"><div class="feat-icon">🛡️</div><h3>Safe &amp; Secure</h3><p>Your personal data and transactions are always protected with bank-grade security.</p></div>
+      <div class="feat-card"><div class="feat-icon">📊</div><h3>Market Price Insights</h3><p>Get accurate price trends and locality analytics before making a decision.</p></div>
+      <div class="feat-card"><div class="feat-icon">🤝</div><h3>Expert Agents</h3><p>Connect with certified local agents who understand your city best.</p></div>
+      <div class="feat-card"><div class="feat-icon">🏦</div><h3>Home Loan Assistance</h3><p>Compare loans from 20+ banks and get pre-approved in minutes.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- INQUIRY SECTION -->
+<section class="inquiry-section">
+  <div class="container">
+    <div class="inquiry-wrap">
+      <div class="inquiry-left">
+        <h2>Interested in a Property?<br/>Let Us Help You.</h2>
+        <p>Fill out the form and our team will reach out to you within 24 hours with the best matching properties and expert guidance.</p>
+        <div class="inquiry-perks">
+          <div class="inquiry-perk"><div class="inquiry-perk-icon">⚡</div>Response within 24 hours</div>
+          <div class="inquiry-perk"><div class="inquiry-perk-icon">🔒</div>Your information is 100% secure</div>
+          <div class="inquiry-perk"><div class="inquiry-perk-icon">🤝</div>Free expert consultation</div>
+          <div class="inquiry-perk"><div class="inquiry-perk-icon">🏠</div>Verified listings only</div>
+        </div>
+      </div>
+      <div class="inquiry-form-card">
+        <h3>Send an Inquiry</h3>
+        <p class="form-sub">We'll get back to you within 24 hours</p>
+        <form data-form="inquiry">
+          <input type="hidden" data-field="listing_id" value=""/>
+          <div class="fg"><label>Full Name</label><div class="icw"><span class="ic">👤</span><input class="fc" type="text" data-field="name" placeholder="Enter your full name" required/></div></div>
+          <div class="fg"><label>Email Address</label><div class="icw"><span class="ic">📧</span><input class="fc" type="email" data-field="email" placeholder="Enter your email" required/></div></div>
+          <div class="fg"><label>Mobile Number</label><div class="icw"><span class="ic">📱</span><input class="fc" type="tel" data-field="mobile" placeholder="10-digit mobile number" required/></div></div>
+          <div class="fg"><label>Message</label><div class="icw"><span class="ic" style="top:18px;">💬</span><textarea class="fc" data-field="message" placeholder="Describe your requirement (min 10 chars)" required></textarea></div></div>
+          <button type="submit" class="btn-submit">Send Inquiry 🚀</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-grid">
+      <div class="fbrand">
+        <div class="flogo"><img width="30px" height="30px" src="images/logo.png" alt=""> Nest<span>Find</span></div>
+        <p>India's most trusted real estate platform. Helping millions find their dream home since 2012.</p>
+        <div class="social-row">
+          <a href="#" class="soc-btn">📘</a><a href="#" class="soc-btn">📸</a>
+          <a href="#" class="soc-btn">🐦</a><a href="#" class="soc-btn">💼</a>
+        </div>
+      </div>
+      <div class="fcol">
+        <h4>Properties</h4>
+        <ul>
+          <li><a href="buy.html">Buy a Home</a></li>
+          <li><a href="rent.html">Rent a Home</a></li>
+          <li><a href="sell.html">Sell Your Property</a></li>
+          <li><a href="#">New Projects</a></li>
+          <li><a href="#">Commercial</a></li>
+        </ul>
+      </div>
+      <div class="fcol">
+        <h4>Popular Cities</h4>
+        <ul>
+          <li><a href="#">Panaji</a></li><li><a href="#">Mapusa</a></li>
+          <li><a href="#">Margao</a></li><li><a href="#">Vasco</a></li>
+          <li><a href="#">Ponda</a></li>
+        </ul>
+      </div>
+      <div class="fcol">
+        <h4>Company</h4>
+        <ul>
+          <li><a href="#">About Us</a></li><li><a href="#">Careers</a></li>
+          <li><a href="#">Press</a></li><li><a href="#">Contact</a></li>
+          <li><a href="#">Privacy Policy</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2026 NestFind Technologies Pvt. Ltd. All rights reserved.</p>
+    </div>
+  </div>
+</footer>
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="script.js"></script>
+<script>
+/**
+ * Home Page — Dynamic Featured Property Loader
+ * Fetches featured Sale and Rent properties separately and renders
+ * them in their respective sections. Falls back gracefully if DB is empty.
+ */
+$(document).ready(function () {
+
+  /* ── Shared DB property map for View Details modal ─────────── */
+  const dbPropMap = {};
+
+  /* ── All fetched Sale properties (for client-side filtering) ── */
+  let allSaleProps = [];
+  let allRentProps = [];
+
+  /* ── Filter & render sale grid based on active chip ─────────── */
+  function filterAndRenderSale(filter) {
+    const $grid = $('#homeSaleGrid');
+    let filtered;
+
+    if (filter === 'all') {
+      filtered = allSaleProps;
+    } else if (filter === 'apartment') {
+      filtered = allSaleProps.filter(p =>
+        (p.title + ' ' + (p.description || '')).toLowerCase().match(/apartment|flat/)
+      );
+    } else if (filter === 'villa') {
+      filtered = allSaleProps.filter(p =>
+        (p.title + ' ' + (p.description || '')).toLowerCase().match(/villa|bungalow/)
+      );
+    } else if (filter === 'plot') {
+      filtered = allSaleProps.filter(p =>
+        (p.title + ' ' + (p.description || '')).toLowerCase().match(/plot|land/)
+      );
+    } else if (filter === 'under50') {
+      filtered = allSaleProps.filter(p => parseFloat(p.price) < 5000000);
+    } else if (filter === '50to1cr') {
+      filtered = allSaleProps.filter(p => {
+        const price = parseFloat(p.price);
+        return price >= 5000000 && price < 10000000;
+      });
+    } else if (filter === 'above1cr') {
+      filtered = allSaleProps.filter(p => parseFloat(p.price) >= 10000000);
+    } else {
+      filtered = allSaleProps;
+    }
+
+    $grid.empty();
+
+    if (!filtered.length) {
+      $grid.html(`
+        <div class="empty-state">
+          <div class="es-icon">🔍</div>
+          <h3>No Properties Found</h3>
+          <p>No featured properties match this filter. Try a different category.</p>
+        </div>`);
+      return;
+    }
+
+    filtered.slice(0, 6).forEach(function (prop) {
+      dbPropMap['db_' + prop.id] = prop;
+      $grid.append(buildFeaturedSaleCard(prop));
+    });
+  }
+
+  /* ── View Details modal for DB property cards ───────────────── */
+  function openDbModal(prop) {
+    if ($('#propModal').length === 0) {
+      $('body').append('<div id="propModal" class="modal-overlay" role="dialog" aria-modal="true" aria-label="Property Details"><div class="modal-box"><button class="modal-close" id="modalClose" aria-label="Close">✕</button><div id="modalBody"></div></div></div>');
+    }
+
+    const isRent = prop.property_type === 'Rent';
+    const formattedPrice = isRent
+      ? '₹' + (parseFloat(prop.price) || 0).toLocaleString('en-IN') + '/month'
+      : (parseFloat(prop.price) >= 10000000
+          ? '₹' + (parseFloat(prop.price) / 10000000).toFixed(2) + ' Cr'
+          : '₹' + (parseFloat(prop.price) / 100000).toFixed(2) + ' L');
+
+    let amenities = [];
+    if (prop.amenities) { try { amenities = JSON.parse(prop.amenities); } catch(e) { amenities = prop.amenities.split(',').map(a => a.trim()).filter(Boolean); } }
+    const amenityHTML = amenities.length ? amenities.map(a => `<span class="modal-amenity">${a}</span>`).join('') : '<span class="modal-amenity">🏠 Standard Amenities</span>';
+
+    let extraImages = [];
+    if (prop.extra_images) { try { extraImages = JSON.parse(prop.extra_images); } catch(e) {} }
+    const galleryHTML = extraImages.length
+      ? `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:8px;margin:10px 0 16px;">${extraImages.map(img => `<img src="${img}" style="width:100%;height:80px;object-fit:cover;border-radius:6px;" onerror="this.style.display='none'">`).join('')}</div>`
+      : '';
+
+    const mapHTML = prop.map_embed
+      ? `<div style="margin:16px 0 8px;"><div style="font-weight:700;font-size:13px;color:var(--text);margin-bottom:8px;">📍 Location Map</div><div style="border-radius:10px;overflow:hidden;border:1.5px solid var(--border);">${prop.map_embed}</div></div>`
+      : '';
+
+    const actionBtn = isRent
+      ? `<a href="rent.html" class="modal-action-btn rent-btn">🔑 Rent Now</a>`
+      : `<a href="buy.html" class="modal-action-btn buy-btn">🏠 Buy Now</a>`;
+
+    const wlKey = localStorage.getItem('nf_user') ? 'nf_wishlist_' + JSON.parse(localStorage.getItem('nf_user') || '{}').name : 'nf_wishlist_guest';
+    const wishlist = JSON.parse(localStorage.getItem(wlKey) || '{}');
+    const wlId = 'db_' + prop.id;
+
+    $('#modalBody').html(`
+      <div class="modal-img-wrap">
+        ${prop.image ? `<img src="${prop.image}" alt="${prop.title}" class="modal-hero-img" loading="lazy"/>` : `<div style="height:260px;background:var(--primary-light);display:flex;align-items:center;justify-content:center;font-size:64px;">🏠</div>`}
+        <div class="modal-badge ${isRent ? 'rent' : ''}">${isRent ? 'For Rent' : 'For Sale'}</div>
+        <div class="modal-wishlist" data-prop-id="${wlId}" style="position:absolute;top:12px;right:12px;background:#fff;border-radius:50%;width:36px;height:36px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;box-shadow:0 2px 8px rgba(0,0,0,0.15);">${wishlist[wlId] ? '❤️' : '🤍'}</div>
+      </div>
+      ${galleryHTML}
+      <div class="modal-content">
+        <div class="modal-price">${formattedPrice}</div>
+        <h2 class="modal-title">${prop.title}</h2>
+        <p class="modal-loc">📍 ${prop.location}</p>
+        <div class="modal-meta-row">
+          ${prop.bedrooms ? `<span class="modal-meta-item">🛏 ${prop.bedrooms}</span>` : ''}
+          ${prop.bathrooms ? `<span class="modal-meta-item">🛁 ${prop.bathrooms} Bath</span>` : ''}
+          ${prop.area ? `<span class="modal-meta-item">📐 ${prop.area}</span>` : ''}
+          ${prop.furnishing ? `<span class="modal-meta-item">🛋 ${prop.furnishing}</span>` : ''}
+        </div>
+        ${prop.description ? `<p class="modal-desc">${prop.description}</p>` : ''}
+        <div class="modal-amenities-label">Amenities & Features</div>
+        <div class="modal-amenities">${amenityHTML}</div>
+        ${mapHTML}
+        <div class="modal-actions">${actionBtn}<button class="modal-share-btn" onclick="navigator.share?navigator.share({title:'${prop.title.replace(/'/g,"\\'")}',url:window.location.href}):alert('Copy the URL to share!')">📤 Share</button></div>
+      </div>
+    `);
+    $('#propModal').fadeIn(250);
+    $('body').addClass('modal-open');
+
+    // Wishlist toggle inside modal
+    $('#propModal').off('click.dbwl').on('click.dbwl', '.modal-wishlist', function(e) {
+      e.stopPropagation();
+      const id = $(this).data('prop-id');
+      const wl = JSON.parse(localStorage.getItem(wlKey) || '{}');
+      if (wl[id]) {
+        delete wl[id]; $(this).text('🤍');
+        $(`.prop-card[data-prop-id="${id}"] .prop-wishlist`).text('🤍').removeClass('wished');
+      } else {
+        wl[id] = JSON.stringify({ id: prop.id, title: prop.title, price: formattedPrice, location: prop.location, image: prop.image || '', beds: prop.bedrooms || '', area: prop.area || '', listing_type: isRent ? 'For Rent' : 'For Sale' });
+        $(this).text('❤️');
+        $(`.prop-card[data-prop-id="${id}"] .prop-wishlist`).text('❤️').addClass('wished');
+      }
+      localStorage.setItem(wlKey, JSON.stringify(wl));
+    });
+  }
+
+  /* ── Filter chip click handler ──────────────────────────────── */
+  $('#saleFilterBar').on('click', '.chip', function () {
+    $('#saleFilterBar .chip').removeClass('active');
+    $(this).addClass('active');
+    filterAndRenderSale($(this).data('filter'));
+  });
+
+  // Modal close handlers
+  $(document).on('click', '#modalClose, .modal-overlay', function(e) {
+    if ($(e.target).is('#modalClose') || $(e.target).is('.modal-overlay')) {
+      $('#propModal').fadeOut(200); $('body').removeClass('modal-open');
+    }
+  });
+  $(document).on('keydown', function(e) {
+    if (e.key === 'Escape') { $('#propModal').fadeOut(200); $('body').removeClass('modal-open'); }
+  });
+
+  // View Details click on DB cards
+  $(document).on('click', '.prop-card[data-db-prop="1"] .prop-overlay, .prop-card[data-db-prop="1"] .view-tag', function(e) {
+    e.preventDefault(); e.stopPropagation();
+    const prop = dbPropMap[$(this).closest('.prop-card').data('prop-id')];
+    if (prop) openDbModal(prop);
+  });
+  $(document).on('click', '.prop-card[data-db-prop="1"]', function(e) {
+    if ($(e.target).is('.prop-wishlist') || $(e.target).closest('.prop-wishlist').length) return;
+    const prop = dbPropMap[$(this).data('prop-id')];
+    if (prop) openDbModal(prop);
+  });
+  // Wishlist heart toggle on cards
+  $(document).on('click', '.prop-card[data-db-prop="1"] .prop-wishlist', function(e) {
+    e.preventDefault(); e.stopPropagation();
+    const card  = $(this).closest('.prop-card');
+    const wlId  = card.data('prop-id');
+    const prop  = dbPropMap[wlId];
+    const wlKey = localStorage.getItem('nf_user') ? 'nf_wishlist_' + JSON.parse(localStorage.getItem('nf_user') || '{}').name : 'nf_wishlist_guest';
+    const wl    = JSON.parse(localStorage.getItem(wlKey) || '{}');
+    const isRent = prop ? prop.property_type === 'Rent' : card.find('.prop-badge').text().includes('Rent');
+
+    if (wl[wlId]) {
+      delete wl[wlId]; $(this).text('🤍').removeClass('wished');
+      if (typeof showToast === 'function') showToast('Removed from Wishlist', 'info');
+    } else {
+      const title    = prop ? prop.title    : card.find('.prop-title').text().trim();
+      const location = prop ? prop.location : card.find('.prop-loc').text().replace('📍','').trim();
+      const rawPrice = prop ? parseFloat(prop.price) : 0;
+      const price    = prop
+        ? (isRent ? '₹' + rawPrice.toLocaleString('en-IN') + '/month' : '₹' + rawPrice.toLocaleString('en-IN'))
+        : card.find('.prop-price').text().trim();
+      const image    = prop ? (prop.image || '')    : (card.find('img').attr('src') || '');
+      const beds     = prop ? (prop.bedrooms || '') : card.find('.prop-meta-item').first().text().replace(/[^0-9A-Za-z\s]/g,'').trim();
+      const area     = prop ? (prop.area || '')     : card.find('.prop-meta-item').eq(2).text().replace('📐','').trim();
+      wl[wlId] = JSON.stringify({ id: prop ? prop.id : wlId, title, price, location, image, beds, area, listing_type: isRent ? 'For Rent' : 'For Sale' });
+      $(this).text('❤️').addClass('wished');
+      if (typeof showToast === 'function') showToast('Added to Wishlist ❤️', 'success');
+    }
+    localStorage.setItem(wlKey, JSON.stringify(wl));
+  });
+
+  /**
+   * Format price for display (Indian notation)
+   * @param {number|string} price
+   * @param {string} type - 'Sale' or 'Rent'
+   */
+  function formatPrice(price, type) {
+    price = parseFloat(price) || 0;
+    let fmt;
+    if (price >= 10000000)      fmt = '₹' + (price / 10000000).toFixed(2) + ' Cr';
+    else if (price >= 100000)   fmt = '₹' + (price / 100000).toFixed(2) + ' L';
+    else                        fmt = '₹' + price.toLocaleString('en-IN');
+    return type === 'Rent' ? fmt + ' <span>/month</span>' : fmt;
+  }
+
+  /**
+   * Build a featured Sale property card (links to buy.html, badge: For Sale)
+   */
+  function buildFeaturedSaleCard(prop) {
+    const imgHtml = prop.image
+      ? `<img src="${prop.image}" alt="${escHtml(prop.title)}" loading="lazy"
+             onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
+         <div class="prop-img-placeholder" style="display:none;align-items:center;justify-content:center;height:100%;font-size:48px;">🏠</div>`
+      : `<div class="prop-img-placeholder" style="display:flex;align-items:center;justify-content:center;height:100%;font-size:48px;">🏠</div>`;
+
+    const bedsHtml  = prop.bedrooms  ? `<div class="prop-meta-item"><span class="ico">🛏</span> ${escHtml(prop.bedrooms)}</div>` : '';
+    const bathsHtml = prop.bathrooms ? `<div class="prop-meta-item"><span class="ico">🛁</span> ${prop.bathrooms} Bath</div>` : '';
+    const areaHtml  = prop.area      ? `<div class="prop-meta-item"><span class="ico">📐</span> ${escHtml(prop.area)}</div>` : '';
+
+    return `
+      <div class="prop-card" data-prop-id="db_${prop.id}" data-db-prop="1" data-db-type="Sale" style="cursor:pointer;">
+        <div class="prop-img">
+          ${imgHtml}
+          <div class="prop-badge">For Sale</div>
+          <div class="prop-wishlist">🤍</div>
+          <div class="prop-overlay"><span class="view-tag">View Details</span></div>
+        </div>
+        <div class="prop-info">
+          <div class="prop-price">${formatPrice(prop.price, 'Sale')}</div>
+          <div class="prop-title">${escHtml(prop.title)}</div>
+          <div class="prop-loc">📍 ${escHtml(prop.location)}</div>
+          <div class="prop-meta">${bedsHtml}${bathsHtml}${areaHtml}</div>
+        </div>
+      </div>`;
+  }
+
+  /**
+   * Build a featured Rent property card (links to rent.html, badge: For Rent)
+   */
+  function buildFeaturedRentCard(prop) {
+    const imgHtml = prop.image
+      ? `<img src="${prop.image}" alt="${escHtml(prop.title)}" loading="lazy"
+             onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
+         <div class="prop-img-placeholder" style="display:none;align-items:center;justify-content:center;height:100%;font-size:48px;">🔑</div>`
+      : `<div class="prop-img-placeholder" style="display:flex;align-items:center;justify-content:center;height:100%;font-size:48px;">🔑</div>`;
+
+    const bedsHtml  = prop.bedrooms  ? `<div class="prop-meta-item"><span class="ico">🛏</span> ${escHtml(prop.bedrooms)}</div>` : '';
+    const bathsHtml = prop.bathrooms ? `<div class="prop-meta-item"><span class="ico">🛁</span> ${prop.bathrooms} Bath</div>` : '';
+    const areaHtml  = prop.area      ? `<div class="prop-meta-item"><span class="ico">📐</span> ${escHtml(prop.area)}</div>` : '';
+
+    return `
+      <div class="prop-card" data-prop-id="db_${prop.id}" data-db-prop="1" data-db-type="Rent" style="cursor:pointer;">
+        <div class="prop-img">
+          ${imgHtml}
+          <div class="prop-badge rent">For Rent</div>
+          <div class="prop-wishlist">🤍</div>
+          <div class="prop-overlay"><span class="view-tag">View Details</span></div>
+        </div>
+        <div class="prop-info">
+          <div class="prop-price">${formatPrice(prop.price, 'Rent')}</div>
+          <div class="prop-title">${escHtml(prop.title)}</div>
+          <div class="prop-loc">📍 ${escHtml(prop.location)}</div>
+          <div class="prop-meta">${bedsHtml}${bathsHtml}${areaHtml}</div>
+        </div>
+      </div>`;
+  }
+
+  /** Safely escape HTML to prevent XSS */
+  function escHtml(str) {
+    return $('<div>').text(str || '').html();
+  }
+
+  /**
+   * Fetch featured Sale properties → render in #homeSaleGrid
+   * Only properties marked is_featured=1 AND type=Sale appear here.
+   * Falls back to showing ALL Sale props if none are featured.
+   */
+  $.ajax({
+    url: 'api/properties.php?action=list&type=featured',
+    method: 'GET',
+    dataType: 'json',
+    success: function (res) {
+      // Store all Sale props globally for filter chips
+      allSaleProps = (res.properties || []).filter(p => p.property_type === 'Sale');
+
+      if (!allSaleProps.length) {
+        $('#homeSaleGrid').html(`
+          <div class="empty-state">
+            <div class="es-icon">🏠</div>
+            <h3>No Featured Sale Properties</h3>
+            <p>Mark properties as "Featured" in the Admin Dashboard to show them here.</p>
+          </div>`);
+        return;
+      }
+
+      // Render with default 'all' filter
+      filterAndRenderSale('all');
+    },
+    error: function () {
+      $('#homeSaleGrid').html(`<div class="empty-state"><div class="es-icon">⚠️</div><h3>Could Not Load Properties</h3><p>Server unavailable.</p></div>`);
+    }
+  });
+
+  /**
+   * Fetch featured Rent properties → render in #homeRentGrid
+   * Only properties marked is_featured=1 AND type=Rent appear here.
+   */
+  $.ajax({
+    url: 'api/properties.php?action=list&type=featured',
+    method: 'GET',
+    dataType: 'json',
+    success: function (res) {
+      const $grid = $('#homeRentGrid');
+      $grid.empty();
+
+      const rentProps = (res.properties || []).filter(p => p.property_type === 'Rent');
+      allRentProps = rentProps;
+
+      if (!rentProps.length) {
+        $grid.html(`
+          <div class="empty-state">
+            <div class="es-icon">🔑</div>
+            <h3>No Featured Rental Properties</h3>
+            <p>Mark Rent properties as "Featured" in the Admin Dashboard to show them here.</p>
+          </div>`);
+        return;
+      }
+
+      rentProps.slice(0, 3).forEach(function (prop) {
+        dbPropMap['db_' + prop.id] = prop;
+        $grid.append(buildFeaturedRentCard(prop));
+      });
+    },
+    error: function () {
+      $('#homeRentGrid').html(`<div class="empty-state"><div class="es-icon">⚠️</div><h3>Could Not Load Rentals</h3><p>Server unavailable.</p></div>`);
+    }
+  });
+
+  /* ── Hero Search Button ── */
+  function showHomeToast(msg, type) {
+    var $t = $('<div style="position:fixed;bottom:28px;right:24px;z-index:9999;padding:13px 22px;border-radius:9px;font-size:14px;font-weight:600;color:#fff;box-shadow:0 4px 18px rgba(0,0,0,0.18);opacity:0;transition:opacity .3s;">' + msg + '</div>');
+    if (type === 'success') $t.css('background','#2d7a5e');
+    else if (type === 'error') $t.css('background','#e53935');
+    else $t.css('background','#1565c0');
+    $('body').append($t);
+    setTimeout(function(){ $t.css('opacity','1'); }, 10);
+    setTimeout(function(){ $t.css('opacity','0'); setTimeout(function(){ $t.remove(); }, 350); }, 3200);
+  }
+
+  function heroFilterAndRender(q) {
+    q = q.toLowerCase().trim();
+
+    // Filter sale props
+    var saleFiltered = q
+      ? allSaleProps.filter(function(p){
+          return (p.title + ' ' + (p.location || '') + ' ' + (p.description || '')).toLowerCase().includes(q);
+        })
+      : allSaleProps;
+
+    var $saleGrid = $('#homeSaleGrid');
+    $saleGrid.empty();
+    if (saleFiltered.length) {
+      saleFiltered.slice(0, 6).forEach(function(prop){
+        dbPropMap['db_' + prop.id] = prop;
+        $saleGrid.append(buildFeaturedSaleCard(prop));
+      });
+    } else {
+      $saleGrid.html('<div class="empty-state"><div class="es-icon">🔍</div><h3>No Sale Properties Found</h3><p>No properties match "' + q + '".</p></div>');
+    }
+
+    // Filter rent props
+    var rentFiltered = q
+      ? allRentProps.filter(function(p){
+          return (p.title + ' ' + (p.location || '') + ' ' + (p.description || '')).toLowerCase().includes(q);
+        })
+      : allRentProps;
+
+    var $rentGrid = $('#homeRentGrid');
+    $rentGrid.empty();
+    if (rentFiltered.length) {
+      rentFiltered.slice(0, 3).forEach(function(prop){
+        dbPropMap['db_' + prop.id] = prop;
+        $rentGrid.append(buildFeaturedRentCard(prop));
+      });
+    } else {
+      $rentGrid.html('<div class="empty-state"><div class="es-icon">🔍</div><h3>No Rentals Found</h3><p>No rentals match "' + q + '".</p></div>');
+    }
+
+    return saleFiltered.length + rentFiltered.length;
+  }
+
+  $(document).on('click', '.btn-search', function () {
+    var q = $('#heroSearchInput').val().trim();
+    if (!q) {
+      showHomeToast('Please enter a title or location to search.', 'error');
+      return;
+    }
+    var total = heroFilterAndRender(q);
+    $('html,body').animate({ scrollTop: $('#buy').offset().top - 80 }, 400);
+    if (total > 0) {
+      showHomeToast('Found ' + total + ' propert' + (total === 1 ? 'y' : 'ies') + ' for "' + q + '"', 'success');
+    } else {
+      showHomeToast('No properties found for "' + q + '". Try a different keyword.', 'error');
+    }
+  });
+
+  $(document).on('keydown', '#heroSearchInput', function (e) {
+    if (e.key === 'Enter') $('.btn-search').trigger('click');
+  });
+
+});
+</script>
+</body>
+</html>

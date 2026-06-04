@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Rent Property — NestFind</title>
+  <link rel="stylesheet" href="style.css"/>
+  <style>
+    .empty-state {
+      text-align: center; padding: 64px 24px;
+      color: var(--text-muted); grid-column: 1 / -1;
+    }
+    .empty-state .es-icon { font-size: 56px; margin-bottom: 16px; }
+    .empty-state h3 { font-size: 19px; font-weight: 800; color: var(--text); margin-bottom: 8px; }
+    .empty-state p { font-size: 14px; }
+    .skeleton {
+      background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.4s infinite;
+    }
+    @keyframes shimmer { 0%{background-position:-200% 0}100%{background-position:200% 0} }
+    .skel-card { height: 320px; border-radius: 12px; }
+    .btn-rent-now {
+      display: block; width: 100%;
+      background: var(--accent); color: #fff;
+      font-weight: 700; font-size: 13.5px;
+      padding: 10px; border-radius: 7px;
+      text-align: center; margin-top: 12px;
+      transition: all 0.2s ease;
+      border: none; cursor: pointer; text-decoration: none;
+    }
+    .btn-rent-now:hover {
+      background: var(--accent-dark);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(245,166,35,0.3);
+    }
+  </style>
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="nav-inner">
+    <a href="index.html" class="logo">
+      <span class="logo-icon"><img style="width:40px;height:40px;" src="images/logo.png" alt="NestFind Logo"></span>
+      Nest<span>Find</span>
+    </a>
+    <div class="nav-links">
+      <a href="index.html" class="nav-link">Home</a>
+      <a href="buy.html" class="nav-link">Buy</a>
+      <a href="rent.html" class="nav-link active">Rent</a>
+      <a href="sell.html" class="nav-link">Sell</a>
+      <a href="about.html" class="nav-link">About</a>
+    </div>
+    <div class="nav-actions">
+      <a href="login.html" class="btn-outline">Login</a>
+      <a href="signup.html" class="btn-primary">Sign Up</a>
+    </div>
+  </div>
+</nav>
+
+<div class="page-header-strip">
+  <div class="container">
+    <div>
+      <h1>Properties for Rent</h1>
+      <p>Explore furnished &amp; unfurnished rentals from verified owners</p>
+    </div>
+    <div class="result-count">Showing <strong id="rentCount">…</strong> properties</div>
+  </div>
+  <div class="container" style="margin-top:12px;">
+    <div class="hero-search" style="max-width:520px;background:#fff;border:1.5px solid var(--border);box-shadow:0 2px 8px rgba(0,0,0,0.07);">
+      <span style="font-size:16px;padding-left:6px;">🔍</span>
+      <input type="text" id="rentSearchInput" placeholder="Search by city, locality or property name…" style="color:#1a1a1a;" autocomplete="off"/>
+      <button class="btn-search">Search</button>
+    </div>
+  </div>
+</div>
+
+<section class="section" style="padding:20px 0 0;">
+  <div class="container">
+    <div class="filter-bar">
+      <span class="chip active">All</span>
+      <span class="chip">1 BHK</span><span class="chip">2 BHK</span>
+      <span class="chip">3 BHK</span><span class="chip">4+ BHK</span>
+      <span class="chip">Under ₹15K</span><span class="chip">₹15K–₹35K</span>
+      <span class="chip">₹35K+</span><span class="chip">Furnished</span>
+      <span class="chip">Semi-Furnished</span><span class="chip">Unfurnished</span>
+    </div>
+  </div>
+</section>
+
+<section class="section" style="padding-top:16px;">
+  <div class="container">
+    <div class="props-grid" id="rentGrid">
+      <div class="skeleton skel-card"></div>
+      <div class="skeleton skel-card"></div>
+      <div class="skeleton skel-card"></div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-grid">
+      <div class="fbrand">
+        <div class="flogo"><img width="30px" height="30px" src="images/logo.png" alt=""> Nest<span>Find</span></div>
+        <p>India's most trusted real estate platform. Helping millions find their dream home since 2012.</p>
+        <div class="social-row">
+          <a href="#" class="soc-btn">📘</a><a href="#" class="soc-btn">📸</a>
+          <a href="#" class="soc-btn">🐦</a><a href="#" class="soc-btn">💼</a>
+        </div>
+      </div>
+      <div class="fcol">
+        <h4>Properties</h4>
+        <ul>
+          <li><a href="buy.html">Buy a Home</a></li>
+          <li><a href="rent.html">Rent a Home</a></li>
+          <li><a href="sell.html">Sell Your Property</a></li>
+        </ul>
+      </div>
+      <div class="fcol">
+        <h4>Popular Cities</h4>
+        <ul>
+          <li><a href="#">Panaji</a></li><li><a href="#">Mapusa</a></li>
+          <li><a href="#">Margao</a></li><li><a href="#">Vasco</a></li>
+        </ul>
+      </div>
+      <div class="fcol">
+        <h4>Company</h4>
+        <ul>
+          <li><a href="#">About Us</a></li>
+          <li><a href="#">Contact</a></li>
+          <li><a href="#">Privacy Policy</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2026 NestFind Technologies Pvt. Ltd. All rights reserved.</p>
+    </div>
+  </div>
+</footer>
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="script.js"></script>
+<script>
+/**
+ * Rent Page — Dynamic Property Loader
+ *
+ * Flow:
+ *  1. Fetch Rent properties from API
+ *  2. Build cards with "Rent Now" button
+ *  3. On "Rent Now" click → save ALL property details as JSON into sessionStorage
+ *  4. Navigate to payment.html which reads sessionStorage and populates itself
+ *
+ * Using event delegation + propMap avoids any onclick quoting/escaping issues.
+ */
+$(document).ready(function () {
+
+  /** Format price in Indian notation with /month suffix */
+  function formatRentPrice(price) {
+    price = parseFloat(price) || 0;
+    if (price >= 100000) return '₹' + (price / 100000).toFixed(2) + ' L/month';
+    return '₹' + price.toLocaleString('en-IN') + '/month';
+  }
+
+  /** Format plain money value */
+  function formatMoney(price) {
+    price = parseFloat(price) || 0;
+    if (price >= 10000000) return '₹' + (price / 10000000).toFixed(2) + ' Cr';
+    if (price >= 100000)   return '₹' + (price / 100000).toFixed(2) + ' L';
+    return '₹' + price.toLocaleString('en-IN');
+  }
+
+  /** Safely escape HTML */
+  function escHtml(str) {
+    return $('<div>').text(str || '').html();
+  }
+
+  /**
+   * Calculate payment breakdown for a Rent property.
+   * First month + 2-month security deposit + service fee.
+   */
+  function calcRentBreakdown(price) {
+    price        = parseFloat(price) || 0;
+    const deposit  = price * 2;
+    const service  = 5000;
+    const total    = price + deposit + service;
+    return {
+      priceBase:    formatRentPrice(price),
+      priceReg:     formatMoney(deposit),
+      priceStamp:   '—',
+      priceService: '₹' + service.toLocaleString('en-IN'),
+      priceTotal:   formatMoney(total),
+      payBtnAmount: formatMoney(total),
+      labelReg:     'Security Deposit (2 months)',
+      labelStamp:   'Stamp / Agreement',
+      labelService: 'NestFind Service Fee',
+    };
+  }
+
+  /**
+   * Build HTML for one Rent property card.
+   * Button uses data-prop-id; actual data stored in propMap object.
+   */
+  function buildRentCard(prop) {
+    const imgHtml = prop.image
+      ? `<img src="${prop.image}" alt="${escHtml(prop.title)}" loading="lazy"
+             onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
+         <div class="prop-img-placeholder" style="display:none;align-items:center;justify-content:center;height:100%;font-size:48px;">🔑</div>`
+      : `<div class="prop-img-placeholder" style="display:flex;align-items:center;justify-content:center;height:100%;font-size:48px;">🔑</div>`;
+
+    const bedsHtml  = prop.bedrooms  ? `<div class="prop-meta-item"><span class="ico">🛏</span> ${escHtml(prop.bedrooms)}</div>` : '';
+    const bathsHtml = prop.bathrooms ? `<div class="prop-meta-item"><span class="ico">🛁</span> ${prop.bathrooms} Bath</div>` : '';
+    const areaHtml  = prop.area      ? `<div class="prop-meta-item"><span class="ico">📐</span> ${escHtml(prop.area)}</div>` : '';
+    const furnHtml  = prop.furnishing ? `<div class="prop-meta-item"><span class="ico">🛋</span> ${escHtml(prop.furnishing)}</div>` : '';
+
+    return `
+      <div class="prop-card" data-prop-id="db_${prop.id}" data-db-prop="1">
+        <div class="prop-img">
+          ${imgHtml}
+          <div class="prop-badge rent">For Rent</div>
+          <div class="prop-wishlist">🤍</div>
+          <div class="prop-overlay"><span class="view-tag">View Details</span></div>
+        </div>
+        <div class="prop-info">
+          <div class="prop-price">${formatRentPrice(prop.price)} <span style="font-size:11px;font-weight:500;color:var(--text-muted);">/month</span></div>
+          <div class="prop-title">${escHtml(prop.title)}</div>
+          <div class="prop-loc">📍 ${escHtml(prop.location)}</div>
+          <div class="prop-meta">${bedsHtml}${bathsHtml}${areaHtml}${furnHtml}</div>
+          <button class="btn-rent-now" data-prop-id="${prop.id}">🔑 Rent Now</button>
+        </div>
+      </div>`;
+  }
+
+  // Store all fetched properties keyed by id
+  const propMap = {};
+  const dbPropMap = {};
+
+  // View Details modal for DB rent properties
+  $(document).on('click', '.prop-card[data-db-prop="1"] .prop-overlay, .prop-card[data-db-prop="1"] .view-tag', function (e) {
+    e.preventDefault(); e.stopPropagation();
+    const cardId = $(this).closest('.prop-card').data('prop-id');
+    const prop = dbPropMap[cardId];
+    if (prop) openDbRentModal(prop);
+  });
+  $(document).on('click', '.prop-card[data-db-prop="1"]', function (e) {
+    if ($(e.target).is('button') || $(e.target).closest('button').length) return;
+    if ($(e.target).is('.prop-wishlist') || $(e.target).closest('.prop-wishlist').length) return;
+    const prop = dbPropMap[$(this).data('prop-id')];
+    if (prop) openDbRentModal(prop);
+  });
+
+  function openDbRentModal(prop) {
+    if ($('#propModal').length === 0) {
+      $('body').append('<div id="propModal" class="modal-overlay" role="dialog" aria-modal="true" aria-label="Property Details"><div class="modal-box"><button class="modal-close" id="modalClose" aria-label="Close">✕</button><div id="modalBody"></div></div></div>');
+    }
+    const formattedPrice = formatRentPrice(prop.price);
+
+    let amenities = [];
+    if (prop.amenities) { try { amenities = JSON.parse(prop.amenities); } catch(e) { amenities = prop.amenities.split(',').map(a => a.trim()).filter(Boolean); } }
+    const amenityHTML = amenities.length ? amenities.map(a => `<span class="modal-amenity">${a}</span>`).join('') : '<span class="modal-amenity">🏠 Standard Amenities</span>';
+
+    let extraImages = [];
+    if (prop.extra_images) { try { extraImages = JSON.parse(prop.extra_images); } catch(e) {} }
+    const galleryHTML = extraImages.length ? `<div class="modal-gallery" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:8px;margin:10px 0 16px;">${extraImages.map(img => `<img src="${img}" style="width:100%;height:80px;object-fit:cover;border-radius:6px;" onerror="this.style.display='none'">`).join('')}</div>` : '';
+    const mapHTML = prop.map_embed ? `<div style="margin:16px 0 8px;"><div style="font-weight:700;font-size:13px;color:var(--text);margin-bottom:8px;">📍 Location Map</div><div style="border-radius:10px;overflow:hidden;border:1.5px solid var(--border);">${prop.map_embed}</div></div>` : '';
+
+    const wlKey = localStorage.getItem('nf_user') ? 'nf_wishlist_' + JSON.parse(localStorage.getItem('nf_user') || '{}').name : 'nf_wishlist_guest';
+    const wishlist = JSON.parse(localStorage.getItem(wlKey) || '{}');
+    const wlId = 'db_' + prop.id;
+
+    $('#modalBody').html(`
+      <div class="modal-img-wrap">
+        ${prop.image ? `<img src="${prop.image}" alt="${prop.title}" class="modal-hero-img" loading="lazy"/>` : `<div style="height:260px;background:var(--primary-light);display:flex;align-items:center;justify-content:center;font-size:64px;">🔑</div>`}
+        <div class="modal-badge rent">For Rent</div>
+        <div class="modal-wishlist" data-prop-id="${wlId}" style="position:absolute;top:12px;right:12px;background:#fff;border-radius:50%;width:36px;height:36px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;box-shadow:0 2px 8px rgba(0,0,0,0.15);">${wishlist[wlId] ? '❤️' : '🤍'}</div>
+      </div>
+      ${galleryHTML}
+      <div class="modal-content">
+        <div class="modal-price">${formattedPrice} <span>/month</span></div>
+        <h2 class="modal-title">${prop.title}</h2>
+        <p class="modal-loc">📍 ${prop.location}</p>
+        <div class="modal-meta-row">
+          ${prop.bedrooms ? `<span class="modal-meta-item">🛏 ${prop.bedrooms}</span>` : ''}
+          ${prop.bathrooms ? `<span class="modal-meta-item">🛁 ${prop.bathrooms} Bath</span>` : ''}
+          ${prop.area ? `<span class="modal-meta-item">📐 ${prop.area}</span>` : ''}
+          ${prop.furnishing ? `<span class="modal-meta-item">🛋 ${prop.furnishing}</span>` : ''}
+          <span class="modal-meta-item">✅ For Rent</span>
+        </div>
+        ${prop.description ? `<p class="modal-desc">${prop.description}</p>` : ''}
+        <div class="modal-amenities-label">Amenities & Features</div>
+        <div class="modal-amenities">${amenityHTML}</div>
+        ${mapHTML}
+        <div class="modal-actions">
+          <button class="modal-action-btn rent-btn" onclick="document.querySelector('.btn-rent-now[data-prop-id=\\'${prop.id}\\']').click()">🔑 Rent Now</button>
+          <button class="modal-share-btn" onclick="navigator.share ? navigator.share({title:'${prop.title}',url:window.location.href}) : alert('Copy the URL to share!')">📤 Share</button>
+        </div>
+      </div>
+    `);
+    $('#propModal').fadeIn(250);
+    $('body').addClass('modal-open');
+
+    $('#propModal').off('click.dbwl').on('click.dbwl', '.modal-wishlist', function(e) {
+      e.stopPropagation();
+      const id = $(this).data('prop-id');
+      const wl = JSON.parse(localStorage.getItem(wlKey) || '{}');
+      if (wl[id]) {
+        delete wl[id]; $(this).text('🤍');
+        $(`.prop-card[data-prop-id="${id}"] .prop-wishlist`).text('🤍').removeClass('wished');
+        if (typeof showToast === 'function') showToast('Removed from Wishlist', 'info');
+      } else {
+        wl[id] = JSON.stringify({ id: prop.id, title: prop.title, price: formattedPrice, location: prop.location, image: prop.image || '', beds: prop.bedrooms || '', area: prop.area || '', listing_type: 'For Rent' });
+        $(this).text('❤️');
+        $(`.prop-card[data-prop-id="${id}"] .prop-wishlist`).text('❤️').addClass('wished');
+        if (typeof showToast === 'function') showToast('Added to Wishlist ❤️', 'success');
+      }
+      localStorage.setItem(wlKey, JSON.stringify(wl));
+    });
+  }
+
+  // Fetch Rent properties from API
+  $.ajax({
+    url: 'api/properties.php?action=list&type=Rent',
+    method: 'GET',
+    dataType: 'json',
+    success: function (res) {
+      const $grid = $('#rentGrid');
+      $grid.empty();
+
+      if (!res.success || !res.properties.length) {
+        $grid.html(`
+          <div class="empty-state">
+            <div class="es-icon">🔑</div>
+            <h3>No Rentals Listed Yet</h3>
+            <p>The admin hasn't added any Rent properties yet. Check back soon!</p>
+          </div>`);
+        $('#rentCount').text('0');
+        return;
+      }
+
+      res.properties.forEach(function (prop) {
+        propMap[prop.id] = prop;   // store for click lookup
+        dbPropMap['db_' + prop.id] = prop;
+        $grid.append(buildRentCard(prop));
+      });
+
+      $('#rentCount').text(res.properties.length);
+    },
+    error: function () {
+      $('#rentGrid').html(`
+        <div class="empty-state">
+          <div class="es-icon">⚠️</div>
+          <h3>Could Not Load Rentals</h3>
+          <p>Please ensure the server is running and the database is connected.</p>
+        </div>`);
+      $('#rentCount').text('0');
+    }
+  });
+
+  $('#rentGrid').on('click', '.prop-wishlist', function (e) {
+    e.preventDefault(); e.stopPropagation();
+    const card   = $(this).closest('.prop-card');
+    const cardId = card.data('prop-id');
+    const rawId  = cardId ? String(cardId).replace('db_', '') : null;
+    const prop   = rawId ? (propMap[rawId] || null) : null;
+    const wlKey  = localStorage.getItem('nf_user') ? 'nf_wishlist_' + JSON.parse(localStorage.getItem('nf_user') || '{}').name : 'nf_wishlist_guest';
+    const wl     = JSON.parse(localStorage.getItem(wlKey) || '{}');
+    if (wl[cardId]) {
+      delete wl[cardId]; $(this).text('🤍').removeClass('wished');
+      if (typeof showToast === 'function') showToast('Removed from Wishlist', 'info');
+    } else {
+      const title    = prop ? prop.title              : card.find('.prop-title').text().trim();
+      const location = prop ? prop.location           : card.find('.prop-loc').text().replace('📍','').trim();
+      const price    = prop ? formatRentPrice(prop.price) : card.find('.prop-price').text().trim();
+      const image    = prop ? (prop.image || '')      : (card.find('img').attr('src') || '');
+      const beds     = prop ? (prop.bedrooms || '')   : card.find('.prop-meta-item').first().text().replace(/[^0-9A-Za-z\s]/g,'').trim();
+      const area     = prop ? (prop.area || '')       : card.find('.prop-meta-item').eq(2).text().replace('📐','').trim();
+      wl[cardId] = JSON.stringify({ id: rawId || cardId, title, price, location, image, beds, area, listing_type: 'For Rent' });
+      $(this).text('❤️').addClass('wished');
+      if (typeof showToast === 'function') showToast('Added to Wishlist ❤️', 'success');
+    }
+    localStorage.setItem(wlKey, JSON.stringify(wl));
+  });
+
+  /**
+   * "Rent Now" click handler — event delegation on the grid.
+   * Looks up full property from propMap using data-prop-id,
+   * builds JSON payload, stores in sessionStorage, navigates to payment.html.
+   */
+  $('#rentGrid').on('click', '.btn-rent-now', function () {
+    const id   = $(this).data('prop-id');
+    const prop = propMap[id];
+    if (!prop) return;
+
+    const bd = calcRentBreakdown(prop.price);
+
+    const payload = {
+      // Property display
+      propTitle:    prop.title,
+      propLoc:      '📍 ' + prop.location,
+      propBeds:     prop.bedrooms  ? '🛏 ' + prop.bedrooms           : '',
+      propBaths:    prop.bathrooms ? '🛁 ' + prop.bathrooms + ' Bath' : '',
+      propArea:     prop.area      ? '📐 ' + prop.area               : '',
+      propImage:    prop.image     || '',
+      propType:     'For Rent ✅',
+      // Price breakdown
+      priceBase:    bd.priceBase,
+      priceReg:     bd.priceReg,
+      priceStamp:   bd.priceStamp,
+      priceService: bd.priceService,
+      priceTotal:   bd.priceTotal,
+      payBtnAmount: bd.payBtnAmount,
+      // Row labels (payment page uses these to label each row correctly)
+      labelReg:     bd.labelReg,
+      labelStamp:   bd.labelStamp,
+      labelService: bd.labelService,
+    };
+
+    sessionStorage.setItem('nestfind_property', JSON.stringify(payload));
+
+    // Navigate to payment page only if logged in
+    let nfUser = null;
+    try { nfUser = JSON.parse(localStorage.getItem('nf_user') || 'null'); } catch(e) {}
+    if (!nfUser) {
+      goToPaymentIfLoggedIn(); // shows login prompt
+      return;
+    }
+    window.location.href = 'payment.html';
+  });
+
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sell Property — NestFind</title>
+  <link rel="stylesheet" href="style.css"/>
+  <style>
+    .upload-zone { border: 2px dashed var(--border); border-radius: 10px; background: #fafbfa; padding: 32px 20px; text-align: center; cursor: pointer; transition: all 0.22s ease; user-select: none; }
+    .upload-zone:hover, .upload-zone.drag-over { border-color: var(--primary); background: var(--primary-light); }
+    .upload-icon { font-size: 36px; margin-bottom: 10px; }
+    .upload-title { font-size: 14.5px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+    .upload-sub { font-size: 13px; color: var(--primary); font-weight: 600; margin-bottom: 6px; }
+    .upload-hint { font-size: 11.5px; color: var(--text-muted); }
+    .media-preview-grid { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
+    .media-thumb { position: relative; width: 100px; height: 80px; border-radius: 7px; overflow: hidden; border: 1.5px solid var(--border); background: #f0f0f0; flex-shrink: 0; }
+    .media-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .media-thumb .remove-btn { position: absolute; top: 4px; right: 4px; width: 20px; height: 20px; background: rgba(0,0,0,0.6); color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; cursor: pointer; font-weight: 700; }
+    .media-thumb .remove-btn:hover { background: #e53e3e; }
+    .media-thumb .file-name { position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.5); color: #fff; font-size: 9.5px; padding: 2px 4px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+    .form-section-divider { border: none; border-top: 1.5px solid var(--border-light); margin: 28px 0; }
+    .form-section-label { font-size: 15px; font-weight: 800; color: var(--text); margin-bottom: 20px; margin-top: 4px; display: flex; align-items: center; gap: 8px; }
+    .summary-table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 8px; }
+    .summary-table th { background: var(--primary); color: #fff; text-align: left; padding: 10px 14px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+    .summary-table td { padding: 9px 14px; border-bottom: 1px solid var(--border-light); color: var(--text-2); vertical-align: top; }
+    .summary-table tr:last-child td { border-bottom: none; }
+    .summary-table tr:nth-child(even) td { background: #f8faf9; }
+    .summary-table td:first-child { font-weight: 700; color: var(--text); width: 38%; white-space: nowrap; }
+    .summary-table .tag-val { display: inline-block; background: var(--primary-light); color: var(--primary); border-radius: 4px; padding: 2px 8px; font-size: 12px; font-weight: 600; }
+  </style>
+  <script>
+    function previewFiles(input, previewId, type) {
+      const container = document.getElementById(previewId);
+      Array.from(input.files).forEach(file => {
+        const wrap = document.createElement('div'); wrap.className = 'media-thumb';
+        const rm = document.createElement('div'); rm.className = 'remove-btn'; rm.textContent = '✕'; rm.onclick = () => wrap.remove();
+        const img = document.createElement('img');
+        const reader = new FileReader(); reader.onload = e => img.src = e.target.result; reader.readAsDataURL(file);
+        wrap.appendChild(img);
+        const nm = document.createElement('div'); nm.className = 'file-name'; nm.textContent = file.name;
+        wrap.appendChild(nm); wrap.appendChild(rm); container.appendChild(wrap);
+      });
+    }
+    function handleDrop(e, type) {
+      e.preventDefault(); e.currentTarget.classList.remove('drag-over');
+      const container = document.getElementById('photoPreview');
+      Array.from(e.dataTransfer.files).forEach(file => {
+        if (!file.type.startsWith('image/')) return;
+        const wrap = document.createElement('div'); wrap.className = 'media-thumb';
+        const rm = document.createElement('div'); rm.className = 'remove-btn'; rm.textContent = '✕'; rm.onclick = () => wrap.remove();
+        const img = document.createElement('img');
+        const reader = new FileReader(); reader.onload = ev => img.src = ev.target.result; reader.readAsDataURL(file);
+        wrap.appendChild(img);
+        const nm = document.createElement('div'); nm.className = 'file-name'; nm.textContent = file.name;
+        wrap.appendChild(nm); wrap.appendChild(rm); container.appendChild(wrap);
+      });
+    }
+  </script>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="nav-inner">
+    <a href="index.html" class="logo">
+        <span class="logo-icon"><img  style="width: 40px; height: 40px;" src="images/logo.png" alt="NestFind Logo"></span>
+      Nest<span>Find</span>
+    </a>
+    <div class="nav-links">
+      <a href="index.html" class="nav-link">Home</a>
+      <a href="buy.html" class="nav-link">Buy</a>
+      <a href="rent.html" class="nav-link">Rent</a>
+      <a href="sell.html" class="nav-link active">Sell</a>
+      <a href="about.html" class="nav-link">About</a>
+    </div>
+    <div class="nav-actions">
+      <a href="login.html" class="btn-outline">Login</a>
+      <a href="signup.html" class="btn-primary">Sign Up</a>
+    </div>
+  </div>
+</nav>
+
+<!-- PAGE HERO -->
+<div class="page-hero">
+  <div class="container">
+    <h1>Sell Your Property</h1>
+    <p>Reach 5 million+ active buyers &amp; renters. Get your first inquiry within 48 hours — guaranteed.</p>
+  </div>
+</div>
+<!-- FORM LAYOUT -->
+<div class="container">
+  <div class="form-layout">
+
+    <div>
+      <div class="form-card">
+        <form id="sellForm" action="#">
+
+          <div class="form-section-label">🏠 Property Info</div>
+          <div class="fg">
+                 <label>Property Title *</label>
+                 <input class="fc" type="text" id="propTitle" placeholder="e.g. Spacious 2 BHK near Miramar Beach" required/>
+          </div>
+
+          <div class="frow">
+            <div class="fg">
+              <label>Property Type *</label>
+              <select class="fc" id="propType" name="property_type" required>
+                <option value="">Select type</option>
+                <option>Apartment / Flat</option>
+                <option>Independent House</option>
+                <option>Villa</option>
+                <option>Row House</option>
+                <option>Studio Apartment</option>
+                <option>Plot / Land</option>
+                <option>Commercial Space</option>
+              </select>
+            </div>
+            <div class="fg">
+              <label>Listing Type *</label>
+              <select class="fc" id="listingType" name="listing_type" required>
+                <option value="">Select option</option>
+                <option>For Sale</option>
+                <option>For Rent</option>
+                <option>For Lease</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="frow">
+            <div class="fg">
+              <label>BHK Configuration</label>
+              <select class="fc" id="propBhk" name="bhk">
+                <option>1 BHK</option>
+                <option>1.5 BHK</option>
+                <option selected>2 BHK</option>
+                <option>2.5 BHK</option>
+                <option>3 BHK</option>
+                <option>3.5 BHK</option>
+                <option>4 BHK</option>
+                <option>4+ BHK</option>
+                <option>Studio</option>
+              </select>
+            </div>
+            <div class="fg">
+              <label>Total Area (sqft) *</label>
+              <input class="fc" type="number" id="propArea" name="total_area" placeholder="e.g. 1450" required/>
+            </div>
+          </div>
+
+          <div class="frow">
+            <div class="fg">
+              <label>Asking Price / Rent *</label>
+              <div class="icw"><span class="ic">₹</span>
+                <input class="fc" type="number" id="propPrice" name="price" placeholder="e.g. 8500000" required/>
+              </div>
+            </div>
+            <div class="fg">
+              <label>Furnishing Status</label>
+              <select class="fc" id="propFurnish" name="furnishing">
+                <option>Fully Furnished</option>
+                <option>Semi-Furnished</option>
+                <option>Unfurnished</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="fg">
+            <label>Location (Area, City) *</label>
+            <div class="icw"><span class="ic">📍</span>
+              <input class="fc" type="text" id="propAddress" name="address" placeholder="e.g. Bandra West, Mumbai" required/>
+            </div>
+          </div>
+
+          <hr class="form-section-divider"/>
+
+          <div class="form-section-label">📸 Property Photos</div>
+          <p style="font-size:13px;color:var(--text-muted);margin-bottom:16px;margin-top:-12px;">Listings with photos get <strong style="color:var(--primary);">3× more inquiries</strong>.</p>
+
+          <div class="fg">
+            <div class="upload-zone" id="photoZone"
+              onclick="document.getElementById('photoInput').click()"
+              ondragover="event.preventDefault();this.classList.add('drag-over')"
+              ondragleave="this.classList.remove('drag-over')"
+              ondrop="handleDrop(event,'photo')">
+              <div class="upload-icon">🖼️</div>
+              <div class="upload-title">Drag &amp; drop photos here</div>
+              <div class="upload-sub">or click to browse from your device</div>
+              <div class="upload-hint">JPG, PNG, WEBP · Max 5 MB per file</div>
+              <input type="file" id="photoInput" accept="image/*" multiple style="display:none"
+                onchange="previewFiles(this,'photoPreview','photo')"/>
+            </div>
+            <div class="media-preview-grid" id="photoPreview"></div>
+          </div>
+
+          <hr class="form-section-divider"/>
+
+          <div class="form-section-label">👤 Your Contact Details</div>
+
+          <div class="frow">
+            <div class="fg">
+              <label>Full Name *</label>
+              <div class="icw"><span class="ic">👤</span>
+                <input class="fc" type="text" id="ownerName" name="owner_name" placeholder="Your full name" required/>
+              </div>
+            </div>
+            <div class="fg">
+              <label>Mobile Number *</label>
+              <div class="icw"><span class="ic">📱</span>
+                <input class="fc" type="tel" id="ownerPhone" name="owner_phone" placeholder="10-digit mobile" required/>
+              </div>
+            </div>
+          </div>
+
+          <hr class="form-section-divider"/>
+
+          <div class="form-section-label">📊 Listing Summary</div>
+          <p style="font-size:13px;color:var(--text-muted);margin-bottom:16px;margin-top:-12px;">Updates live as you fill the form.</p>
+
+          <table class="summary-table">
+            <thead>
+              <tr><th>Detail</th><th>Your Entry</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Property Type</td><td><span id="sum-type">—</span></td></tr>
+              <tr><td>Listing Type</td><td><span id="sum-listing">—</span></td></tr>
+              <tr><td>BHK</td><td><span id="sum-bhk">—</span></td></tr>
+              <tr><td>Total Area</td><td><span id="sum-area">—</span></td></tr>
+              <tr><td>Asking Price / Rent</td><td><span id="sum-price">—</span></td></tr>
+              <tr><td>Furnishing</td><td><span id="sum-furnish">—</span></td></tr>
+              <tr><td>Location</td><td><span id="sum-address">—</span></td></tr>
+              <tr><td>Owner</td><td><span id="sum-owner">—</span></td></tr>
+              <tr><td>Mobile</td><td><span id="sum-phone">—</span></td></tr>
+            </tbody>
+          </table>
+
+          <button type="submit" class="btn-submit" style="margin-top:24px;">🚀 Post Property for Free</button>
+          <p style="text-align:center;font-size:12px;color:var(--text-muted);margin-top:10px;">
+            By submitting, you agree to our <a href="#" style="color:var(--primary);">Terms of Service</a> &amp;
+            <a href="#" style="color:var(--primary);">Privacy Policy</a>.
+          </p>
+
+        </form>
+      </div>
+    </div>
+
+    <!-- SIDEBAR -->
+    <div>
+      <div class="sidebar-card">
+        <h3>💡 Tips for a Great Listing</h3>
+        <div class="tip-item">
+          <div class="tip-icon">📸</div>
+          <div class="tip-text"><h4>Add Quality Photos</h4><p>Listings with 10+ photos get 3× more inquiries. Use natural light.</p></div>
+        </div>
+        <div class="tip-item">
+          <div class="tip-icon">💰</div>
+          <div class="tip-text"><h4>Price it Right</h4><p>Check nearby listings and price within 10% of market rate for faster results.</p></div>
+        </div>
+        <div class="tip-item">
+          <div class="tip-icon">📝</div>
+          <div class="tip-text"><h4>Write a Clear Description</h4><p>Mention the nearest metro, school, hospital and key landmarks.</p></div>
+        </div>
+        <div class="tip-item">
+          <div class="tip-icon">⏱</div>
+          <div class="tip-text"><h4>Respond Quickly</h4><p>Sellers who respond within 2 hours close deals 60% faster.</p></div>
+        </div>
+      </div>
+
+      <div class="sidebar-card" style="margin-top:20px;background:var(--primary-light);border-color:#b6d9c9;">
+        <h3 style="color:var(--primary);">🎯 Reach More Buyers</h3>
+        <p style="font-size:13px;color:var(--text-2);line-height:1.65;margin-bottom:16px;">Upgrade to a Featured Listing and get 5× more visibility, a priority badge, and dedicated agent support.</p>
+        <a href="#" class="btn-primary" style="display:block;text-align:center;padding:11px;">Explore Premium Plans</a>
+      </div>
+
+      <div class="sidebar-card" style="margin-top:20px;">
+        <h3>📞 Need Help?</h3>
+        <p style="font-size:13px;color:var(--text-muted);margin-bottom:14px;">Our property experts are available Monday–Saturday, 9 AM to 7 PM.</p>
+        <div style="display:flex;align-items:center;gap:10px;padding:12px;background:var(--bg);border-radius:8px;">
+          <span style="font-size:22px;">📞</span>
+          <div>
+            <div style="font-weight:700;font-size:14px;">1800-123-4567</div>
+            <div style="font-size:12px;color:var(--text-muted);">Toll-free helpline</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-grid">
+      <div class="fbrand">
+        <div class="flogo"><img width="30px" height="30px" src="images/logo.png" alt=""> Nest<span>Find</span></div>
+        <p>India's most trusted real estate platform. Helping millions find their dream home since 2012.</p>
+        <div class="social-row">
+          <a href="#" class="soc-btn">📘</a>
+          <a href="#" class="soc-btn">📸</a>
+          <a href="#" class="soc-btn">🐦</a>
+          <a href="#" class="soc-btn">💼</a>
+        </div>
+      </div>
+      <div class="fcol">
+        <h4>Properties</h4>
+        <ul>
+          <li><a href="buy.html">Buy a Home</a></li>
+          <li><a href="rent.html">Rent a Home</a></li>
+          <li><a href="sell.html">Sell Your Property</a></li>
+        </ul>
+      </div>
+      <div class="fcol">
+        <h4>Popular Cities</h4>
+        <ul>
+          <li><a href="#">Mumbai</a></li>
+          <li><a href="#">Bangalore</a></li>
+          <li><a href="#">Delhi NCR</a></li>
+          <li><a href="#">Hyderabad</a></li>
+          <li><a href="#">Pune</a></li>
+        </ul>
+      </div>
+      <div class="fcol">
+        <h4>Company</h4>
+        <ul>
+          <li><a href="#">About Us</a></li>
+          <li><a href="#">Contact</a></li>
+          <li><a href="#">Privacy Policy</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2025 NestFind Technologies Pvt. Ltd. All rights reserved.</p>
+    </div>
+  </div>
+</footer>
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="script.js"></script>
+
+<script>
+  function updateSummary() {
+    function val(id) { return document.getElementById(id)?.value || ''; }
+    function set(id, text) { const el = document.getElementById(id); if (el) el.textContent = text || '—'; }
+
+    set('sum-type',    val('propType'));
+    set('sum-listing', val('listingType'));
+    set('sum-bhk',     val('propBhk'));
+    const area = val('propArea');
+    set('sum-area',    area ? area + ' sqft' : '');
+    const price = val('propPrice');
+    set('sum-price',   price ? '₹ ' + Number(price).toLocaleString('en-IN') : '');
+    set('sum-furnish', val('propFurnish'));
+    set('sum-address', val('propAddress'));
+    set('sum-owner',   val('ownerName'));
+    set('sum-phone',   val('ownerPhone'));
+  }
+  document.querySelectorAll('input, select, textarea').forEach(el => {
+    el.addEventListener('input', updateSummary);
+    el.addEventListener('change', updateSummary);
+  });
+</script>
+
+<script>
+document.getElementById('sellForm').addEventListener('submit', function(e) {
+  e.preventDefault();
+  e.stopImmediatePropagation();
+
+  var propType   = document.getElementById('propType').value;
+  var listingType= document.getElementById('listingType').value;
+  var bhk        = document.getElementById('propBhk').value;
+  var area       = document.getElementById('propArea').value;
+  var price      = document.getElementById('propPrice').value;
+  var furnish    = document.getElementById('propFurnish').value;
+  var address    = document.getElementById('propAddress').value.trim();
+  var ownerName  = document.getElementById('ownerName').value.trim();
+  var ownerPhone = document.getElementById('ownerPhone').value.trim();
+
+  if (!propType)    { alert('Please select Property Type.'); return; }
+  if (!listingType) { alert('Please select Listing Type.'); return; }
+  if (!area)        { alert('Please enter Total Area.'); return; }
+  if (!price)       { alert('Please enter Price.'); return; }
+  if (!address)     { alert('Please enter Location.'); return; }
+  if (!ownerName)   { alert('Please enter your Full Name.'); return; }
+  if (!ownerPhone || ownerPhone.length !== 10) { alert('Please enter a valid 10-digit Mobile Number.'); return; }
+
+  var parts = address.split(',');
+  var city  = parts.length > 1 ? parts[parts.length - 1].trim() : address;
+
+  // Use FormData so photos are sent as files
+  var fd = new FormData();
+  fd.append('property_type', propType);
+  fd.append('listing_type',  listingType);
+  fd.append('bhk',           bhk);
+  fd.append('total_area',    area);
+  fd.append('price',         price);
+  fd.append('furnishing',    furnish);
+  fd.append('address',       address);
+  fd.append('city',          city);
+  fd.append('pincode',       '000000');
+  fd.append('owner_name',    ownerName);
+  fd.append('owner_phone',   ownerPhone);
+  fd.append('title',         document.getElementById('propTitle').value.trim());
+
+  // Attach all selected photos
+  var photoInput = document.getElementById('photoInput');
+  if (photoInput && photoInput.files.length > 0) {
+    Array.from(photoInput.files).forEach(function(file) {
+      fd.append('photos[]', file);
+    });
+  }
+
+  var btn = document.querySelector('.btn-submit');
+  btn.disabled = true;
+  btn.textContent = 'Submitting...';
+
+  fetch('api/listing.php', {
+    method: 'POST',
+    body: fd   // No Content-Type header — browser sets multipart boundary automatically
+  })
+  .then(function(res) { return res.text(); })
+  .then(function(text) {
+    try {
+      var data = JSON.parse(text);
+      if (data.success) {
+        alert('✅ Property submitted for review!\n\nOur admin team will verify your listing and publish it on the website within 24 hours.\n\nListing ID: ' + data.listing_id);
+        document.getElementById('sellForm').reset();
+        document.getElementById('photoPreview').innerHTML = '';
+        updateSummary();
+      } else {
+        alert('❌ Error: ' + data.message);
+      }
+    } catch(ex) {
+      alert('❌ PHP returned invalid response:\n' + text.substring(0, 300));
+    }
+  })
+  .catch(function(err) {
+    alert('❌ Network error: ' + err.message);
+  })
+  .finally(function() {
+    btn.disabled = false;
+    btn.textContent = '🚀 Post Property for Free';
+  });
+});
+</script>
+
+</body>
+</html>

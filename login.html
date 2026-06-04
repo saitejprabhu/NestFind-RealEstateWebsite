@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login — NestFind</title>
+  <link rel="stylesheet" href="style.css"/>
+  <style>
+    .logo, .auth-logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .auth-head {
+      text-align: center;
+    }
+    .auth-logo {
+      justify-content: center;
+    }
+    /* Admin link divider */
+    .admin-divider {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 18px 0 6px;
+      color: var(--text-muted);
+      font-size: 12px;
+    }
+    .admin-divider::before,
+    .admin-divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+    /* Admin login link button */
+    .admin-link-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      padding: 10px 16px;
+      border: 1.5px solid var(--primary);
+      border-radius: 8px;
+      color: var(--primary);
+      font-size: 13.5px;
+      font-weight: 700;
+      background: var(--primary-light);
+      transition: var(--t);
+      cursor: pointer;
+      text-decoration: none;
+    }
+    .admin-link-btn:hover {
+      background: var(--primary);
+      color: #fff;
+    }
+    .admin-badge {
+      background: var(--primary);
+      color: #fff;
+      font-size: 10px;
+      font-weight: 800;
+      padding: 2px 7px;
+      border-radius: 20px;
+      letter-spacing: 0.5px;
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="nav-inner">
+    <a href="index.html" class="logo">
+      <span class="logo-icon"><img style="width: 40px; height: 40px;" src="images/logo.png" alt="NestFind Logo"></span>
+      Nest<span>Find</span>
+    </a>
+    <div class="nav-links">
+      <a href="index.html" class="nav-link">Home</a>
+      <a href="buy.html" class="nav-link">Buy</a>
+      <a href="rent.html" class="nav-link">Rent</a>
+      <a href="sell.html" class="nav-link">Sell</a>
+      <a href="about.html" class="nav-link">About</a>
+    </div>
+    <div class="nav-actions">
+      <a href="login.html" class="btn-outline" style="pointer-events:none; opacity:0.5;">Login</a>
+      <a href="signup.html" class="btn-primary">Sign Up</a>
+    </div>
+  </div>
+</nav>
+
+<!-- AUTH PAGE -->
+<div class="auth-page">
+  <div class="auth-box">
+    <div class="auth-head">
+      <div class="auth-logo">
+        <span class="logo-icon"><img style="width: 40px; height: 40px;" src="images/logo.png" alt="NestFind Logo"></span>
+        Nest<span>Find</span>
+      </div>
+      <p>Your trusted partner for real estate in India</p>
+    </div>
+
+    <h2>Welcome Back!</h2>
+    <p class="auth-sub">Sign in to access your saved listings &amp; inquiries</p>
+
+    <form data-form="login">
+
+      <div class="fg">
+        <label>Email / Mobile Number</label>
+        <div class="icw">
+          <span class="ic">📧</span>
+          <input class="fc" type="text" data-field="identifier" placeholder="Enter email or mobile number" required/>
+        </div>
+      </div>
+
+      <div class="fg">
+        <label>Password</label>
+        <div class="icw">
+          <span class="ic">🔒</span>
+          <input class="fc" type="password" placeholder="Enter your password" required/>
+        </div>
+        <a href="#" class="forgot">Forgot password?</a>
+      </div>
+
+      <div class="fg">
+        <label class="fcheck">
+          <input type="checkbox" checked/>
+          Remember me
+        </label>
+      </div>
+
+      <button type="submit" class="btn-submit">Sign In</button>
+    </form>
+
+    <!-- Admin Login Divider + Link -->
+    <div class="admin-divider">Admin Access</div>
+    <a href="admin/login.html" class="admin-link-btn">
+      🛡️ Admin Dashboard Login
+      <span class="admin-badge">ADMIN</span>
+    </a>
+
+    <div class="auth-sw" style="margin-top:18px;">
+      New to NestFind? <a href="signup.html">Sign up</a>
+    </div>
+  </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="script.js"></script>
+</body>
+</html>

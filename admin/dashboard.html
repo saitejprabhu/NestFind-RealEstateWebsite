@@ -1,0 +1,1636 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Dashboard — NestFind</title>
+  <link rel="stylesheet" href="../style.css"/>
+  <style>
+    /* ── Admin layout overrides ─────────────────────────────── */
+    body { background: #f0f2f5; }
+
+    /* Sidebar */
+    .admin-wrap { display: flex; min-height: 100vh; }
+    .sidebar {
+      width: 240px;
+      background: linear-gradient(180deg, #1a2744 0%, #0f3460 100%);
+      flex-shrink: 0;
+      position: fixed;
+      top: 0; left: 0; bottom: 0;
+      display: flex;
+      flex-direction: column;
+      z-index: 200;
+      transition: width 0.25s;
+    }
+    .sidebar-logo {
+      padding: 20px 20px 16px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    .sidebar-logo .brand {
+      font-size: 19px;
+      font-weight: 800;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .sidebar-logo .brand span { color: #4ade80; }
+    .sidebar-logo .sub { color: rgba(255,255,255,0.5); font-size: 11px; margin-top: 3px; }
+    .sidebar-nav { flex: 1; padding: 16px 0; overflow-y: auto; }
+    .sidebar-section {
+      padding: 0 14px 6px;
+      color: rgba(255,255,255,0.4);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-top: 12px;
+    }
+    .sidebar-link {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 20px;
+      color: rgba(255,255,255,0.7);
+      font-size: 13.5px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.18s;
+      border-left: 3px solid transparent;
+    }
+    .sidebar-link:hover { color: #fff; background: rgba(255,255,255,0.07); }
+    .sidebar-link.active { color: #4ade80; background: rgba(74,222,128,0.1); border-left-color: #4ade80; }
+    .sidebar-link .ico { font-size: 16px; width: 20px; }
+    .sidebar-footer {
+      padding: 16px 20px;
+      border-top: 1px solid rgba(255,255,255,0.1);
+    }
+    .sidebar-footer .admin-user {
+      color: rgba(255,255,255,0.7);
+      font-size: 12.5px;
+      margin-bottom: 10px;
+    }
+    .sidebar-footer .admin-user strong { color: #fff; display: block; }
+    .btn-logout {
+      width: 100%;
+      padding: 8px;
+      background: rgba(239,68,68,0.15);
+      color: #f87171;
+      border: 1px solid rgba(239,68,68,0.3);
+      border-radius: 6px;
+      font-size: 12.5px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.18s;
+    }
+    .btn-logout:hover { background: #ef4444; color: #fff; }
+
+    /* Main content */
+    .admin-main {
+      margin-left: 240px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+    .admin-topbar {
+      background: var(--white);
+      border-bottom: 1px solid var(--border);
+      padding: 0 28px;
+      height: 58px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: var(--shadow-sm);
+    }
+    .topbar-title { font-size: 16px; font-weight: 800; color: var(--text); }
+    .topbar-breadcrumb { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+    .topbar-right { display: flex; align-items: center; gap: 12px; }
+    .topbar-admin-badge {
+      background: var(--primary-light);
+      color: var(--primary);
+      font-size: 12px;
+      font-weight: 700;
+      padding: 4px 12px;
+      border-radius: 20px;
+      border: 1px solid var(--border);
+    }
+
+    /* Panels */
+    .admin-content { padding: 28px; flex: 1; }
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    /* Stats cards */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 18px;
+      margin-bottom: 28px;
+    }
+    .stat-card {
+      background: var(--white);
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--border-light);
+    }
+    .stat-card .sc-icon { font-size: 28px; margin-bottom: 10px; }
+    .stat-card .sc-value { font-size: 26px; font-weight: 800; color: var(--text); }
+    .stat-card .sc-label { font-size: 12px; color: var(--text-muted); font-weight: 600; margin-top: 3px; }
+    .stat-card.green .sc-value { color: #16a34a; }
+    .stat-card.blue .sc-value { color: #2563eb; }
+    .stat-card.orange .sc-value { color: #ea580c; }
+    .stat-card.purple .sc-value { color: #7c3aed; }
+
+    /* Revenue section */
+    .revenue-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+      margin-bottom: 28px;
+    }
+    .revenue-card {
+      background: var(--white);
+      border-radius: 12px;
+      padding: 22px;
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--border-light);
+    }
+    .revenue-card h3 { font-size: 14px; font-weight: 700; color: var(--text-muted); margin-bottom: 8px; }
+    .revenue-card .rev-val { font-size: 28px; font-weight: 800; color: var(--primary); }
+    .revenue-card .rev-note { font-size: 11.5px; color: var(--text-muted); margin-top: 4px; }
+    .revenue-chart {
+      display: flex;
+      align-items: flex-end;
+      gap: 6px;
+      height: 70px;
+      margin-top: 16px;
+    }
+    .bar-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+    .bar {
+      width: 100%;
+      background: var(--primary-light);
+      border-radius: 4px 4px 0 0;
+      position: relative;
+      transition: height 0.5s ease;
+    }
+    .bar.filled { background: var(--primary); }
+    .bar-label { font-size: 9px; color: var(--text-muted); text-align: center; }
+
+    /* Tables */
+    .table-card {
+      background: var(--white);
+      border-radius: 12px;
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--border-light);
+      overflow: hidden;
+    }
+    .table-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border-light);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .table-header h3 { font-size: 15px; font-weight: 800; }
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; }
+    th {
+      background: #f8faf9;
+      padding: 11px 16px;
+      text-align: left;
+      font-size: 11.5px;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      border-bottom: 1px solid var(--border-light);
+    }
+    td {
+      padding: 12px 16px;
+      font-size: 13.5px;
+      border-bottom: 1px solid var(--border-light);
+      vertical-align: middle;
+    }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: #fafcfb; }
+    .prop-thumb {
+      width: 52px;
+      height: 40px;
+      object-fit: cover;
+      border-radius: 6px;
+      background: var(--bg);
+      display: block;
+    }
+    .thumb-placeholder {
+      width: 52px;
+      height: 40px;
+      border-radius: 6px;
+      background: var(--primary-light);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+    }
+    .badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+    .badge-sale { background: #dcfce7; color: #16a34a; }
+    .badge-rent { background: #dbeafe; color: #2563eb; }
+    .badge-featured { background: #fef9c3; color: #ca8a04; }
+    .badge-active { background: #dcfce7; color: #16a34a; }
+    .badge-inactive { background: #fee2e2; color: #dc2626; }
+
+    /* Action buttons in table */
+    .btn-edit, .btn-delete {
+      padding: 5px 12px;
+      border-radius: 5px;
+      font-size: 12px;
+      font-weight: 700;
+      border: none;
+      cursor: pointer;
+      transition: all 0.18s;
+    }
+    .btn-edit { background: var(--primary-light); color: var(--primary); margin-right: 6px; }
+    .btn-edit:hover { background: var(--primary); color: #fff; }
+    .btn-delete { background: #fef2f2; color: #dc2626; }
+    .btn-delete:hover { background: #dc2626; color: #fff; }
+
+    /* Add button */
+    .btn-add {
+      background: var(--primary);
+      color: #fff;
+      padding: 9px 18px;
+      border-radius: 7px;
+      font-size: 13px;
+      font-weight: 700;
+      border: none;
+      cursor: pointer;
+      transition: all 0.18s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .btn-add:hover { background: var(--primary-dark); transform: translateY(-1px); }
+
+    /* Modal */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 500;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+    .modal-backdrop.open { display: flex; }
+    .modal-box {
+      background: var(--white);
+      border-radius: 14px;
+      width: 100%;
+      max-width: 600px;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.25);
+    }
+    .modal-head {
+      padding: 20px 24px 16px;
+      border-bottom: 1px solid var(--border-light);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .modal-head h3 { font-size: 17px; font-weight: 800; }
+    .modal-close {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: var(--bg);
+      border: none;
+      font-size: 16px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: var(--t);
+    }
+    .modal-close:hover { background: var(--border); }
+    .modal-body { padding: 22px 24px; }
+    .modal-footer {
+      padding: 14px 24px;
+      border-top: 1px solid var(--border-light);
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+    .modal-footer .btn-cancel {
+      padding: 9px 18px;
+      border-radius: 7px;
+      font-size: 13px;
+      font-weight: 700;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      cursor: pointer;
+      transition: var(--t);
+    }
+    .modal-footer .btn-cancel:hover { background: var(--border); }
+
+    /* Form grid */
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .fg { margin-bottom: 14px; }
+    .fg label { display: block; font-size: 12.5px; font-weight: 700; color: var(--text-2); margin-bottom: 5px; }
+    .fg input, .fg select, .fg textarea {
+      width: 100%;
+      padding: 9px 12px;
+      border: 1.5px solid var(--border);
+      border-radius: 7px;
+      font-size: 13.5px;
+      color: var(--text);
+      background: var(--white);
+      transition: var(--t);
+    }
+    .fg input:focus, .fg select:focus, .fg textarea:focus { border-color: var(--primary); outline: none; }
+    .fg textarea { resize: vertical; min-height: 80px; }
+    .fg .check-row { display: flex; align-items: center; gap: 8px; font-size: 13.5px; }
+    .fg .check-row input { width: auto; }
+    /* Image preview */
+    .img-preview {
+      width: 100%;
+      height: 140px;
+      border-radius: 8px;
+      object-fit: cover;
+      border: 2px dashed var(--border);
+      background: var(--bg);
+      display: none;
+      margin-top: 8px;
+    }
+    .img-preview.shown { display: block; border-style: solid; }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      padding: 12px 20px;
+      border-radius: 8px;
+      font-size: 13.5px;
+      font-weight: 700;
+      color: #fff;
+      z-index: 9999;
+      transform: translateY(80px);
+      opacity: 0;
+      transition: all 0.3s ease;
+      max-width: 320px;
+    }
+    .toast.show { transform: translateY(0); opacity: 1; }
+    .toast-success { background: #16a34a; }
+    .toast-error { background: #dc2626; }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .sidebar { width: 60px; }
+      .sidebar-link span, .sidebar-section, .sidebar-logo .sub,
+      .sidebar-logo .brand span { display: none; }
+      .admin-main { margin-left: 60px; }
+      .revenue-grid { grid-template-columns: 1fr; }
+      .form-row { grid-template-columns: 1fr; }
+      .stats-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 480px) {
+      .stats-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════
+     ADMIN WRAPPER
+══════════════════════════════════════ -->
+<div class="admin-wrap">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="brand">🏠 Nest<span>Find</span></div>
+      <div class="sub">Admin Dashboard</div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="sidebar-section">Overview</div>
+      <div class="sidebar-link active" data-panel="overview">
+        <span class="ico">📊</span><span>Dashboard</span>
+      </div>
+
+      <div class="sidebar-section">Properties</div>
+      <div class="sidebar-link" data-panel="properties">
+        <span class="ico">🏠</span><span>All Properties</span>
+      </div>
+      <div class="sidebar-link" data-panel="add-property">
+        <span class="ico">➕</span><span>Add Property</span>
+      </div>
+      <div class="sidebar-link" data-panel="submissions">
+        <span class="ico">📬</span><span>Submissions <span id="pendingBadge" style="background:#ef4444;color:#fff;font-size:10px;padding:1px 6px;border-radius:10px;margin-left:4px;display:none;"></span></span>
+      </div>
+
+      <div class="sidebar-section">Finance</div>
+      <div class="sidebar-link" data-panel="revenue">
+        <span class="ico">💰</span><span>Revenue</span>
+      </div>
+      <div class="sidebar-link" data-panel="payments">
+        <span class="ico">🧾</span><span>Payments</span>
+      </div>
+
+      <div class="sidebar-section">Site</div>
+      <div class="sidebar-link" onclick="window.open('../index.html','_blank')">
+        <span class="ico">🌐</span><span>View Site</span>
+      </div>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="admin-user">
+        Logged in as<strong id="sidebarAdminName">Admin</strong>
+      </div>
+      <button class="btn-logout" id="btnLogout">🚪 Logout</button>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="admin-main">
+
+    <!-- TOP BAR -->
+    <div class="admin-topbar">
+      <div>
+        <div class="topbar-title" id="topbarTitle">Dashboard Overview</div>
+        <div class="topbar-breadcrumb">NestFind Admin → <span id="topbarCrumb">Overview</span></div>
+      </div>
+      <div class="topbar-right">
+        <span class="topbar-admin-badge">🛡️ Admin Mode</span>
+      </div>
+    </div>
+
+    <!-- CONTENT -->
+    <div class="admin-content">
+
+      <!-- ── PANEL: Overview ─────────────────────────── -->
+      <div class="panel active" id="panel-overview">
+        <div class="stats-grid" id="statsGrid">
+          <!-- Populated by JS -->
+        </div>
+        <div class="revenue-grid">
+          <div class="revenue-card">
+            <h3>💹 Sale Portfolio Value</h3>
+            <div class="rev-val" id="saleRevVal">₹ —</div>
+            <div class="rev-note">Total value of active Sale properties</div>
+          </div>
+          <div class="revenue-card">
+            <h3>📅 Annual Rent Revenue</h3>
+            <div class="rev-val" id="rentRevVal">₹ —</div>
+            <div class="rev-note">12 × monthly rent of all active Rent properties</div>
+          </div>
+        </div>
+        <div class="table-card">
+          <div class="table-header">
+            <h3>📈 Listings Added (Last 6 Months)</h3>
+          </div>
+          <div style="padding: 20px;">
+            <div class="revenue-chart" id="monthlyChart"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── PANEL: All Properties ────────────────────── -->
+      <div class="panel" id="panel-properties">
+        <div class="table-card">
+          <div class="table-header">
+            <h3>🏠 All Properties</h3>
+            <button class="btn-add" id="btnOpenAdd">➕ Add Property</button>
+          </div>
+          <div class="table-wrap">
+            <table id="propsTable">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Image</th>
+                  <th>Title</th>
+                  <th>Type</th>
+                  <th>Price</th>
+                  <th>Location</th>
+                  <th>Featured</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="propsTableBody">
+                <tr><td colspan="9" style="text-align:center;color:var(--text-muted);padding:30px;">Loading…</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── PANEL: Add Property (inline form) ────────── -->
+      <div class="panel" id="panel-add-property">
+        <div class="table-card" style="padding: 28px;">
+          <h3 style="margin-bottom:22px; font-size:17px;">➕ Add New Property</h3>
+          <form id="addPropForm" enctype="multipart/form-data">
+
+            <div class="fg">
+              <label>Property Image</label>
+              <input type="file" id="addImage" name="image" accept="image/*"/>
+              <img class="img-preview" id="addImgPreview" src="" alt="Preview"/>
+            </div>
+
+            <div class="fg">
+              <label>Title *</label>
+              <input type="text" name="title" id="addTitle" placeholder="e.g. 3BHK Apartment in Calangute" required/>
+            </div>
+
+            <div class="form-row">
+              <div class="fg">
+                <label>Price (₹) *</label>
+                <input type="number" name="price" id="addPrice" placeholder="e.g. 8500000" required/>
+              </div>
+              <div class="fg">
+                <label>Property Type *</label>
+                <select name="property_type" id="addType" required>
+                  <option value="">-- Select --</option>
+                  <option value="Sale">For Sale → Buy Page</option>
+                  <option value="Rent">For Rent → Rent Page</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="fg">
+              <label>Location *</label>
+              <input type="text" name="location" id="addLocation" placeholder="e.g. Calangute, North Goa" required/>
+            </div>
+
+            <div class="form-row">
+              <div class="fg">
+                <label>Bedrooms</label>
+                <input type="text" name="bedrooms" id="addBedrooms" placeholder="e.g. 3 BHK"/>
+              </div>
+              <div class="fg">
+                <label>Bathrooms</label>
+                <input type="number" name="bathrooms" id="addBathrooms" placeholder="e.g. 2"/>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="fg">
+                <label>Area</label>
+                <input type="text" name="area" id="addArea" placeholder="e.g. 1450 sqft"/>
+              </div>
+              <div class="fg">
+                <label>Furnishing</label>
+                <select name="furnishing" id="addFurnishing">
+                  <option value="">-- Select --</option>
+                  <option value="Furnished">Furnished</option>
+                  <option value="Semi-Furnished">Semi-Furnished</option>
+                  <option value="Unfurnished">Unfurnished</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="fg">
+              <label>Description</label>
+              <textarea name="description" id="addDesc" placeholder="Describe the property…"></textarea>
+            </div>
+
+            <div class="fg">
+              <label class="check-row">
+                <input type="checkbox" name="is_featured" id="addFeatured"/>
+                Mark as Featured (appears on Home page)
+              </label>
+            </div>
+
+            <!-- ── VIEW DETAILS SECTION ───────────────────────────── -->
+            <div style="margin:24px 0 12px; padding:16px 20px; background:var(--primary-light); border-radius:10px; border-left:4px solid var(--primary);">
+              <div style="font-size:15px; font-weight:800; color:var(--primary); margin-bottom:4px;">🔍 View Details Section</div>
+              <div style="font-size:12.5px; color:var(--text-muted);">This data appears in the "View Details" modal when users click on a property card.</div>
+            </div>
+
+            <div class="fg">
+              <label>🖼️ Additional Images <span style="font-weight:400;color:var(--text-muted);">(choose multiple files)</span></label>
+              <input type="file" name="extra_images_files[]" id="addExtraImages" accept="image/*" multiple
+                     style="display:block;width:100%;padding:8px;border:1.5px dashed var(--border);border-radius:8px;background:var(--bg);cursor:pointer;font-size:13px;"/>
+              <div id="addExtraPreview" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;"></div>
+              <div style="font-size:11.5px;color:var(--text-muted);margin-top:4px;">These appear as a gallery in the property detail modal. You can select multiple at once.</div>
+            </div>
+
+            <div class="fg">
+              <label>✨ Amenities (comma-separated)</label>
+              <input type="text" name="amenities_raw" id="addAmenities" placeholder='e.g. 🏊 Swimming Pool, 🏋️ Gym, 🅿️ 2 Parking, 🔐 24/7 Security'/>
+              <div style="font-size:11.5px;color:var(--text-muted);margin-top:4px;">Use emoji + name for best display. Example: 🏊 Swimming Pool, 🌿 Garden</div>
+            </div>
+
+            <div class="fg">
+              <label>📝 Full Property Description</label>
+              <textarea name="full_description" id="addFullDesc" rows="5" placeholder="Write a detailed description of the property. This appears in the detail modal and helps buyers/renters make informed decisions…"></textarea>
+            </div>
+
+            <div class="fg">
+              <label>🗺️ Google Maps Embed Code</label>
+              <textarea name="map_embed" id="addMapEmbed" rows="3" placeholder='Paste the &lt;iframe&gt; embed code from Google Maps (Share → Embed a map). Example:&#10;&lt;iframe src="https://maps.google.com/..." width="100%" height="220" ...&gt;&lt;/iframe&gt;'></textarea>
+              <div style="font-size:11.5px;color:var(--text-muted);margin-top:4px;">Go to Google Maps → Share → Embed a map → Copy HTML. This shows an interactive map in the detail view.</div>
+            </div>
+
+            <div style="display:flex; gap:12px; margin-top:6px;">
+              <button type="submit" class="btn-add" style="padding:10px 24px; font-size:14px;">
+                ✅ Save Property
+              </button>
+              <button type="button" class="btn-add" style="background:var(--bg); color:var(--text); border:1px solid var(--border);" onclick="switchPanel('properties')">
+                Cancel
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- ── PANEL: Revenue ───────────────────────────── -->
+      <div class="panel" id="panel-revenue">
+        <div class="stats-grid" id="revStatsGrid"></div>
+        <div class="revenue-grid">
+          <div class="revenue-card">
+            <h3>💹 Total Sale Portfolio</h3>
+            <div class="rev-val" id="revSaleVal">₹ —</div>
+            <div class="rev-note">Combined listing value of all active Sale properties</div>
+            <div style="margin-top:12px; padding:14px; background:var(--primary-light); border-radius:8px; font-size:12.5px; color:var(--primary); font-weight:600;">
+              Each Sale generates a one-time transaction. Commission at 2% = <span id="revSaleComm">₹ —</span>
+            </div>
+          </div>
+          <div class="revenue-card">
+            <h3>📅 Annual Rental Income</h3>
+            <div class="rev-val" id="revRentVal">₹ —</div>
+            <div class="rev-note">12 × sum of all monthly rent prices</div>
+            <div style="margin-top:12px; padding:14px; background:#eff6ff; border-radius:8px; font-size:12.5px; color:#2563eb; font-weight:600;">
+              Monthly rental income: <span id="revMonthlyRent">₹ —</span>
+            </div>
+          </div>
+        </div>
+        <div class="revenue-grid">
+          <div class="revenue-card" style="grid-column:1/-1;">
+            <h3>📊 Monthly Additions Trend</h3>
+            <div class="revenue-chart" id="revChart" style="height:90px; margin-top:20px;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── PANEL: Payments ──────────────────────────────── -->
+      <div class="panel" id="panel-payments">
+        <!-- Stats row -->
+        <div class="stats-grid" id="payStatsGrid" style="margin-bottom:20px;"></div>
+
+        <div class="table-card">
+          <div class="table-header">
+            <h3>🧾 Completed Payments</h3>
+            <span style="font-size:12px;color:var(--text-muted);">Auto-updated after every successful booking</span>
+          </div>
+          <div class="table-wrap">
+            <table id="paymentsTable">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Booking ID</th>
+                  <th>Property</th>
+                  <th>Type</th>
+                  <th>Buyer</th>
+                  <th>Mobile</th>
+                  <th>Email</th>
+                  <th>PAN</th>
+                  <th>Amount</th>
+                  <th>Method</th>
+                  <th>Date</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="paymentsTableBody">
+                <tr><td colspan="12" style="text-align:center;color:var(--text-muted);padding:30px;">Loading…</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- SUBMISSIONS PANEL -->
+      <div class="panel" id="panel-submissions">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:10px;">
+          <div>
+            <h2 style="margin:0;font-size:18px;">📬 User Property Submissions</h2>
+            <p style="margin:4px 0 0;font-size:13px;color:var(--text-muted);">Review, verify and publish listings submitted by users from the Sell page.</p>
+          </div>
+          <div style="display:flex;gap:8px;">
+            <button onclick="loadSubmissions('pending')"   id="subFilterPending"   class="btn-add" style="font-size:12px;padding:6px 14px;">⏳ Pending</button>
+            <button onclick="loadSubmissions('approved')"  id="subFilterApproved"  class="btn-add" style="font-size:12px;padding:6px 14px;background:var(--bg);color:var(--text);border:1px solid var(--border);">✅ Approved</button>
+            <button onclick="loadSubmissions('rejected')"  id="subFilterRejected"  class="btn-add" style="font-size:12px;padding:6px 14px;background:var(--bg);color:var(--text);border:1px solid var(--border);">❌ Rejected</button>
+            <button onclick="loadSubmissions('all')"       id="subFilterAll"       class="btn-add" style="font-size:12px;padding:6px 14px;background:var(--bg);color:var(--text);border:1px solid var(--border);">All</button>
+          </div>
+        </div>
+        <div id="submissionsGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:18px;">
+          <div style="text-align:center;color:var(--text-muted);padding:40px;grid-column:1/-1;">Loading submissions…</div>
+        </div>
+      </div>
+
+    </div><!-- /admin-content -->
+
+    <!-- SUBMISSION DETAIL MODAL -->
+    <div class="modal-backdrop" id="submissionModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:1000;overflow-y:auto;padding:20px;">
+      <div class="modal-box" style="max-width:700px;margin:auto;border-radius:16px;overflow:hidden;">
+        <div class="modal-head" style="display:flex;align-items:center;justify-content:space-between;padding:16px 20px;background:var(--sidebar-bg,#1e293b);color:#fff;">
+          <h3 style="margin:0;font-size:16px;">📋 Submission Details</h3>
+          <button onclick="$('#submissionModal').hide()" style="background:none;border:none;color:#fff;font-size:20px;cursor:pointer;">✕</button>
+        </div>
+        <div id="submissionModalBody" style="padding:24px;background:var(--bg);"></div>
+      </div>
+    </div>
+  </div><!-- /admin-main -->
+</div><!-- /admin-wrap -->
+
+<!-- EDIT PROPERTY MODAL -->
+<div class="modal-backdrop" id="editModal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h3>✏️ Edit Property</h3>
+      <button class="modal-close" id="closeEditModal">✕</button>
+    </div>
+    <div class="modal-body">
+      <form id="editPropForm" enctype="multipart/form-data">
+        <input type="hidden" name="id" id="editId"/>
+
+        <div class="fg">
+          <label>Property Image</label>
+          <input type="file" id="editImage" name="image" accept="image/*"/>
+          <img class="img-preview" id="editImgPreview" src="" alt="Preview"/>
+        </div>
+
+        <div class="fg">
+          <label>Title *</label>
+          <input type="text" name="title" id="editTitle" required/>
+        </div>
+
+        <div class="form-row">
+          <div class="fg">
+            <label>Price (₹) *</label>
+            <input type="number" name="price" id="editPrice" required/>
+          </div>
+          <div class="fg">
+            <label>Property Type *</label>
+            <select name="property_type" id="editType" required>
+              <option value="Sale">For Sale</option>
+              <option value="Rent">For Rent</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="fg">
+          <label>Location *</label>
+          <input type="text" name="location" id="editLocation" required/>
+        </div>
+
+        <div class="form-row">
+          <div class="fg">
+            <label>Bedrooms</label>
+            <input type="text" name="bedrooms" id="editBedrooms"/>
+          </div>
+          <div class="fg">
+            <label>Bathrooms</label>
+            <input type="number" name="bathrooms" id="editBathrooms"/>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="fg">
+            <label>Area</label>
+            <input type="text" name="area" id="editArea"/>
+          </div>
+          <div class="fg">
+            <label>Furnishing</label>
+            <select name="furnishing" id="editFurnishing">
+              <option value="">-- Select --</option>
+              <option value="Furnished">Furnished</option>
+              <option value="Semi-Furnished">Semi-Furnished</option>
+              <option value="Unfurnished">Unfurnished</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="fg">
+            <label>Status</label>
+            <select name="status" id="editStatus">
+              <option value="active">Active</option>
+              <option value="inactive">Inactive</option>
+            </select>
+          </div>
+          <div class="fg" style="display:flex; align-items:flex-end;">
+            <label class="check-row">
+              <input type="checkbox" name="is_featured" id="editFeatured"/>
+              Featured (shown on Home page)
+            </label>
+          </div>
+        </div>
+
+        <div class="fg">
+          <label>Description</label>
+          <textarea name="description" id="editDesc"></textarea>
+        </div>
+
+        <!-- ── VIEW DETAILS SECTION ───────────────────────────── -->
+        <div style="margin:20px 0 10px; padding:14px 18px; background:var(--primary-light); border-radius:10px; border-left:4px solid var(--primary);">
+          <div style="font-size:14px; font-weight:800; color:var(--primary); margin-bottom:3px;">🔍 View Details Section</div>
+          <div style="font-size:12px; color:var(--text-muted);">Shown in the property detail modal when users click "View Details".</div>
+        </div>
+
+        <div class="fg">
+          <label>🖼️ Additional Images <span style="font-weight:400;color:var(--text-muted);">(choose multiple files)</span></label>
+          <input type="file" name="extra_images_files[]" id="editExtraImages" accept="image/*" multiple
+                 style="display:block;width:100%;padding:8px;border:1.5px dashed var(--border);border-radius:8px;background:var(--bg);cursor:pointer;font-size:13px;"/>
+          <!-- Shows existing saved images -->
+          <div id="editExtraExisting" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;"></div>
+          <!-- Shows newly picked images -->
+          <div id="editExtraPreview" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:4px;"></div>
+          <div style="font-size:11.5px;color:var(--text-muted);margin-top:4px;">Uploading new images will replace the current ones.</div>
+        </div>
+
+        <div class="fg">
+          <label>✨ Amenities (comma-separated)</label>
+          <input type="text" name="amenities_raw" id="editAmenities" placeholder="🏊 Swimming Pool, 🏋️ Gym, 🅿️ Parking"/>
+        </div>
+
+        <div class="fg">
+          <label>📝 Full Property Description</label>
+          <textarea name="full_description" id="editFullDesc" rows="4" placeholder="Detailed property description shown in the detail modal…"></textarea>
+        </div>
+
+        <div class="fg">
+          <label>🗺️ Google Maps Embed Code</label>
+          <textarea name="map_embed" id="editMapEmbed" rows="3" placeholder="&lt;iframe src=&quot;https://maps.google.com/...&quot;&gt;&lt;/iframe&gt;"></textarea>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" id="cancelEditModal">Cancel</button>
+      <button class="btn-add" id="saveEditBtn">💾 Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST NOTIFICATION -->
+<div class="toast" id="toast"></div>
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script>
+/**
+ * Admin Dashboard Script
+ * Handles: session check, panel navigation, property CRUD, revenue display,
+ *          image preview, modal management, toast notifications.
+ */
+$(document).ready(function () {
+
+  /* ── 1. Session Guard: redirect to login if not authenticated ─── */
+  $.get('../api/admin_auth.php?action=check', function (res) {
+    if (!res.loggedIn) {
+      window.location.href = 'login.html';
+      return;
+    }
+    $('#sidebarAdminName').text(res.admin.username);
+    loadStats();    // Load overview stats on boot
+    loadProperties(); // Pre-load properties table
+  }).fail(function () {
+    window.location.href = 'login.html';
+  });
+
+  /* ── 2. Panel navigation ──────────────────────────────────────── */
+  window.switchPanel = function (panelName) {
+    $('.panel').removeClass('active');
+    $('#panel-' + panelName).addClass('active');
+    $('.sidebar-link').removeClass('active');
+    $('[data-panel="' + panelName + '"]').addClass('active');
+
+    const titles = {
+      overview:       'Dashboard Overview',
+      properties:     'All Properties',
+      'add-property': 'Add New Property',
+      revenue:        'Revenue Management',
+      payments:       'Completed Payments',
+      submissions:    'User Submissions',
+    };
+    $('#topbarTitle').text(titles[panelName] || 'Dashboard');
+    $('#topbarCrumb').text(titles[panelName] || 'Dashboard');
+
+    // Load data when panels are opened
+    if (panelName === 'properties')  loadProperties();
+    if (panelName === 'revenue')     loadRevenue();
+    if (panelName === 'overview')    loadStats();
+    if (panelName === 'payments')    loadPayments();
+    if (panelName === 'submissions') loadSubmissions('pending');
+  };
+
+  $('.sidebar-link[data-panel]').on('click', function () {
+    switchPanel($(this).data('panel'));
+  });
+
+  /* ── 3. "Add Property" shortcut button in Properties table ───── */
+  $('#btnOpenAdd').on('click', function () {
+    switchPanel('add-property');
+  });
+
+  /* ── 4. Logout ────────────────────────────────────────────────── */
+  $('#btnLogout').on('click', function () {
+    $.post('../api/admin_auth.php?action=logout', function () {
+      window.location.href = 'login.html';
+    });
+  });
+
+  /* ── 5. Image preview helper (reused for add & edit forms) ───── */
+  function setupImagePreview(inputId, previewId) {
+    $('#' + inputId).on('change', function () {
+      const file = this.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        $('#' + previewId).attr('src', e.target.result).addClass('shown');
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+  setupImagePreview('addImage', 'addImgPreview');
+  setupImagePreview('editImage', 'editImgPreview');
+
+  /* ── 5b. Multi-image preview for extra_images_files ──────────── */
+  function setupMultiImagePreview(inputId, previewContainerId) {
+    $('#' + inputId).on('change', function () {
+      const $container = $('#' + previewContainerId);
+      $container.empty();
+      const files = this.files;
+      if (!files || !files.length) return;
+
+      Array.from(files).forEach(function (file) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          $container.append(
+            $('<div>').css({ position: 'relative', display: 'inline-block' }).append(
+              $('<img>').attr('src', e.target.result).css({
+                width: '80px', height: '60px', objectFit: 'cover',
+                borderRadius: '6px', border: '2px solid var(--primary-light)'
+              })
+            )
+          );
+        };
+        reader.readAsDataURL(file);
+      });
+    });
+  }
+  setupMultiImagePreview('addExtraImages', 'addExtraPreview');
+  setupMultiImagePreview('editExtraImages', 'editExtraPreview');
+
+  /* ── 6. Load dashboard stats ─────────────────────────────────── */
+  function loadStats() {
+    $.get('../api/properties.php?action=stats', function (res) {
+      if (!res.success) return;
+
+      // Stat cards
+      $('#statsGrid').html(`
+        <div class="stat-card green">
+          <div class="sc-icon">🏠</div>
+          <div class="sc-value">${res.total}</div>
+          <div class="sc-label">Total Properties</div>
+        </div>
+        <div class="stat-card blue">
+          <div class="sc-icon">🏷️</div>
+          <div class="sc-value">${res.saleCount}</div>
+          <div class="sc-label">For Sale</div>
+        </div>
+        <div class="stat-card orange">
+          <div class="sc-icon">🔑</div>
+          <div class="sc-value">${res.rentCount}</div>
+          <div class="sc-label">For Rent</div>
+        </div>
+        <div class="stat-card purple">
+          <div class="sc-icon">⭐</div>
+          <div class="sc-value">${res.featured}</div>
+          <div class="sc-label">Featured</div>
+        </div>
+        <div class="stat-card">
+          <div class="sc-icon">📩</div>
+          <div class="sc-value">${res.inquiries}</div>
+          <div class="sc-label">Inquiries</div>
+        </div>
+        <div class="stat-card green" style="cursor:pointer;" onclick="switchPanel('payments')">
+          <div class="sc-icon">🧾</div>
+          <div class="sc-value">${res.payments}</div>
+          <div class="sc-label">Completed Payments</div>
+        </div>
+        <div class="stat-card blue">
+          <div class="sc-icon">👤</div>
+          <div class="sc-value">${res.users}</div>
+          <div class="sc-label">Registered Users</div>
+        </div>
+      `);
+
+      // Revenue cards
+      $('#saleRevVal').text('₹ ' + formatMoney(res.saleRevenue));
+      $('#rentRevVal').text('₹ ' + formatMoney(res.rentRevenue));
+
+      // Monthly bar chart
+      renderBarChart('#monthlyChart', res.monthly);
+    });
+  }
+
+  /* ── 7. Load revenue panel ───────────────────────────────────── */
+  function loadRevenue() {
+    $.get('../api/properties.php?action=stats', function (res) {
+      if (!res.success) return;
+
+      $('#revStatsGrid').html(`
+        <div class="stat-card blue">
+          <div class="sc-icon">💹</div>
+          <div class="sc-value">₹ ${formatMoney(res.saleRevenue)}</div>
+          <div class="sc-label">Sale Portfolio</div>
+        </div>
+        <div class="stat-card green">
+          <div class="sc-icon">📅</div>
+          <div class="sc-value">₹ ${formatMoney(res.rentRevenue)}</div>
+          <div class="sc-label">Annual Rent Revenue</div>
+        </div>
+        <div class="stat-card orange">
+          <div class="sc-icon">🏠</div>
+          <div class="sc-value">${res.saleCount + res.rentCount}</div>
+          <div class="sc-label">Active Listings</div>
+        </div>
+      `);
+
+      $('#revSaleVal').text('₹ ' + formatMoney(res.saleRevenue));
+      $('#revSaleComm').text('₹ ' + formatMoney(res.saleRevenue * 0.02));
+      $('#revRentVal').text('₹ ' + formatMoney(res.rentRevenue));
+      $('#revMonthlyRent').text('₹ ' + formatMoney(res.rentRevenue / 12));
+
+      renderBarChart('#revChart', res.monthly);
+    });
+  }
+
+  /* ── 8. Render simple bar chart from monthly data ───────────── */
+  function renderBarChart(selector, monthly) {
+    if (!monthly || !monthly.length) return;
+    const maxCount = Math.max(...monthly.map(m => m.count), 1);
+    let html = '';
+    monthly.forEach(function (m) {
+      const pct = Math.round((m.count / maxCount) * 100);
+      const filled = pct > 0 ? 'filled' : '';
+      html += `<div class="bar-wrap">
+        <div class="bar ${filled}" style="height:${Math.max(pct, 4)}%;"></div>
+        <div class="bar-label">${m.month.split(' ')[0]}<br/><strong>${m.count}</strong></div>
+      </div>`;
+    });
+    $(selector).html(html);
+  }
+
+  /* ── 9. Load and render properties table ─────────────────────── */
+  function loadProperties() {
+    $.get('../api/properties.php?action=list&type=all', function (res) {
+      if (!res.success) { showToast('Failed to load properties', 'error'); return; }
+
+      const rows = res.properties;
+      if (!rows.length) {
+        $('#propsTableBody').html('<tr><td colspan="9" style="text-align:center;color:var(--text-muted);padding:30px;">No properties yet. Add one!</td></tr>');
+        return;
+      }
+
+      let html = '';
+      rows.forEach(function (p, i) {
+        const imgHtml = p.image
+          ? `<img src="../${p.image}" class="prop-thumb" alt="" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="thumb-placeholder" style="display:none">🏠</div>`
+          : `<div class="thumb-placeholder">🏠</div>`;
+
+        const typeBadge  = p.property_type === 'Sale' ? 'badge-sale' : 'badge-rent';
+        const statusBadge = p.status === 'active' ? 'badge-active' : 'badge-inactive';
+        const featured   = p.is_featured == 1 ? '<span class="badge badge-featured">⭐ Yes</span>' : '—';
+
+        html += `<tr>
+          <td>${i + 1}</td>
+          <td>${imgHtml}</td>
+          <td style="max-width:200px;"><strong>${escHtml(p.title)}</strong></td>
+          <td><span class="badge ${typeBadge}">${p.property_type}</span></td>
+          <td>₹ ${formatMoney(p.price)}</td>
+          <td>${escHtml(p.location)}</td>
+          <td>${featured}</td>
+          <td><span class="badge ${statusBadge}">${p.status}</span></td>
+          <td>
+            <button class="btn-edit" onclick="openEditModal(${p.id})">✏️ Edit</button>
+            <button class="btn-delete" onclick="deleteProperty(${p.id})">🗑️ Delete</button>
+          </td>
+        </tr>`;
+      });
+      $('#propsTableBody').html(html);
+    });
+  }
+
+  /* ── 10. Add Property form submit ────────────────────────────── */
+  $('#addPropForm').on('submit', function (e) {
+    e.preventDefault();
+    const formData = new FormData(this);
+    formData.append('action', 'add');
+
+    // Append featured checkbox value (FormData omits unchecked checkboxes)
+    if (!this.querySelector('[name="is_featured"]').checked) {
+      formData.delete('is_featured');
+    }
+
+    // extra_images_files is now a real file input — no post-processing needed
+    // (PHP handles the $_FILES['extra_images_files'] array server-side)
+
+    // Process amenities_raw (comma-separated) → JSON array
+    const rawAmen = (formData.get('amenities_raw') || '').trim();
+    formData.delete('amenities_raw');
+    if (rawAmen) {
+      const amenArr = rawAmen.split(',').map(a => a.trim()).filter(Boolean);
+      formData.append('amenities', JSON.stringify(amenArr));
+    }
+
+    // Copy full_description into description field if provided (overrides basic one)
+    const fullDesc = (formData.get('full_description') || '').trim();
+    if (fullDesc) {
+      formData.set('description', fullDesc);
+    }
+    formData.delete('full_description');
+
+    $.ajax({
+      url: '../api/properties.php?action=add',
+      method: 'POST',
+      data: formData,
+      processData: false,
+      contentType: false,
+      success: function (res) {
+        if (res.success) {
+          showToast('Property added successfully! ✅', 'success');
+          $('#addPropForm')[0].reset();
+          $('#addImgPreview').removeClass('shown').attr('src', '');
+          $('#addExtraPreview').empty();
+          switchPanel('properties');
+        } else {
+          showToast(res.message || 'Failed to add property', 'error');
+        }
+      },
+      error: function () { showToast('Server error. Try again.', 'error'); }
+    });
+  });
+
+  /* ── 11. Open Edit Modal ─────────────────────────────────────── */
+  window.openEditModal = function (id) {
+    // Fetch this specific property data from full list
+    $.get('../api/properties.php?action=list&type=all', function (res) {
+      const prop = res.properties.find(p => p.id == id);
+      if (!prop) { showToast('Property not found', 'error'); return; }
+
+      // Populate edit form fields
+      $('#editId').val(prop.id);
+      $('#editTitle').val(prop.title);
+      $('#editPrice').val(prop.price);
+      $('#editType').val(prop.property_type);
+      $('#editLocation').val(prop.location);
+      $('#editBedrooms').val(prop.bedrooms);
+      $('#editBathrooms').val(prop.bathrooms);
+      $('#editArea').val(prop.area);
+      $('#editFurnishing').val(prop.furnishing);
+      $('#editDesc').val(prop.description);
+      $('#editStatus').val(prop.status);
+      $('#editFeatured').prop('checked', prop.is_featured == 1);
+
+      // Populate View Details fields
+      if (prop.extra_images) {
+        try {
+          const imgs = JSON.parse(prop.extra_images);
+          const $existing = $('#editExtraExisting').empty();
+          if (Array.isArray(imgs) && imgs.length) {
+            $existing.append($('<div>').css({fontSize:'11.5px',color:'var(--text-muted)',marginBottom:'6px',width:'100%'}).text('Current images (upload new ones to replace):'));
+            imgs.forEach(function(src) {
+              $existing.append(
+                $('<img>').attr('src', '../' + src).css({
+                  width:'80px', height:'60px', objectFit:'cover',
+                  borderRadius:'6px', border:'2px solid var(--primary-light)'
+                }).on('error', function(){ $(this).hide(); })
+              );
+            });
+          }
+        } catch(e) { $('#editExtraExisting').empty(); }
+      } else { $('#editExtraExisting').empty(); }
+
+      // Clear new file preview
+      $('#editExtraPreview').empty();
+      document.getElementById('editExtraImages').value = '';
+
+      if (prop.amenities) {
+        try {
+          const amen = JSON.parse(prop.amenities);
+          $('#editAmenities').val(Array.isArray(amen) ? amen.join(', ') : '');
+        } catch(e) { $('#editAmenities').val(prop.amenities || ''); }
+      } else { $('#editAmenities').val(''); }
+
+      $('#editFullDesc').val(prop.description || '');
+      $('#editMapEmbed').val(prop.map_embed || '');
+
+      // Show existing image as preview
+      if (prop.image) {
+        $('#editImgPreview').attr('src', '../' + prop.image).addClass('shown');
+      } else {
+        $('#editImgPreview').removeClass('shown').attr('src', '');
+      }
+
+      $('#editModal').addClass('open');
+    });
+  };
+
+  /* Close edit modal */
+  $('#closeEditModal, #cancelEditModal').on('click', function () {
+    $('#editModal').removeClass('open');
+  });
+
+  /* Click outside modal to close */
+  $('#editModal').on('click', function (e) {
+    if ($(e.target).is('#editModal')) $(this).removeClass('open');
+  });
+
+  /* ── 12. Save Edit form ──────────────────────────────────────── */
+  $('#saveEditBtn').on('click', function () {
+    const formData = new FormData($('#editPropForm')[0]);
+    formData.append('action', 'update');
+    if (!document.getElementById('editFeatured').checked) {
+      formData.delete('is_featured');
+    }
+
+    // extra_images_files is a real file input — PHP handles it server-side
+
+    // Process amenities_raw
+    const rawAmen = (formData.get('amenities_raw') || '').trim();
+    formData.delete('amenities_raw');
+    if (rawAmen) {
+      const amenArr = rawAmen.split(',').map(a => a.trim()).filter(Boolean);
+      formData.append('amenities', JSON.stringify(amenArr));
+    }
+
+    // full_description overrides description
+    const fullDesc = (formData.get('full_description') || '').trim();
+    if (fullDesc) { formData.set('description', fullDesc); }
+    formData.delete('full_description');
+
+    $.ajax({
+      url: '../api/properties.php?action=update',
+      method: 'POST',
+      data: formData,
+      processData: false,
+      contentType: false,
+      success: function (res) {
+        if (res.success) {
+          showToast('Property updated! ✅', 'success');
+          $('#editModal').removeClass('open');
+          loadProperties();
+          loadStats();
+        } else {
+          showToast(res.message || 'Update failed', 'error');
+        }
+      },
+      error: function () { showToast('Server error. Try again.', 'error'); }
+    });
+  });
+
+  /* ── 13. Delete property ─────────────────────────────────────── */
+  window.deleteProperty = function (id) {
+    if (!confirm('Are you sure you want to delete this property?')) return;
+
+    $.ajax({
+      url: '../api/properties.php?action=delete',
+      method: 'POST',
+      contentType: 'application/json',
+      data: JSON.stringify({ id }),
+      success: function (res) {
+        if (res.success) {
+          showToast('Property deleted ✅', 'success');
+          loadProperties();
+          loadStats();
+        } else {
+          showToast(res.message || 'Delete failed', 'error');
+        }
+      },
+      error: function () { showToast('Server error. Try again.', 'error'); }
+    });
+  };
+
+  /* ── Load payments panel ─────────────────────────────────── */
+  function loadPayments() {
+    // Load payment stats
+    $.get('../api/get_payments.php?action=stats', function (res) {
+      if (!res.success) return;
+      $('#payStatsGrid').html(`
+        <div class="stat-card green">
+          <div class="sc-icon">🧾</div>
+          <div class="sc-value">${res.total}</div>
+          <div class="sc-label">Total Payments</div>
+        </div>
+        <div class="stat-card blue">
+          <div class="sc-icon">🏷️</div>
+          <div class="sc-value">${res.saleCount}</div>
+          <div class="sc-label">Sale Payments</div>
+        </div>
+        <div class="stat-card orange">
+          <div class="sc-icon">🔑</div>
+          <div class="sc-value">${res.rentCount}</div>
+          <div class="sc-label">Rent Payments</div>
+        </div>
+        <div class="stat-card purple">
+          <div class="sc-icon">📅</div>
+          <div class="sc-value">${res.thisMonth}</div>
+          <div class="sc-label">This Month</div>
+        </div>
+      `);
+    });
+
+    // Load full payments table
+    $.get('../api/get_payments.php?action=list', function (res) {
+      const $body = $('#paymentsTableBody');
+
+      if (!res.success || !res.payments.length) {
+        $body.html('<tr><td colspan="12" style="text-align:center;color:var(--text-muted);padding:36px;">No payments recorded yet. They appear here automatically after each booking.</td></tr>');
+        return;
+      }
+
+      let html = '';
+      res.payments.forEach(function (p, i) {
+        // Format date nicely
+        const dt = new Date(p.booked_at);
+        const dateStr = dt.toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' });
+        const timeStr = dt.toLocaleTimeString('en-IN', { hour:'2-digit', minute:'2-digit' });
+
+        // Property type badge
+        const isRent  = p.prop_type && p.prop_type.includes('Rent');
+        const typeBadge = isRent
+          ? '<span class="badge badge-rent">Rent</span>'
+          : '<span class="badge badge-sale">Sale</span>';
+
+        // Truncate long strings for table display
+        const title   = (p.prop_title || '—').substring(0, 30) + (p.prop_title && p.prop_title.length > 30 ? '…' : '');
+        const method  = (p.pay_method || '—').substring(0, 20) + (p.pay_method && p.pay_method.length > 20 ? '…' : '');
+
+        html += `<tr>
+          <td>${i + 1}</td>
+          <td style="font-family:monospace;font-size:11.5px;white-space:nowrap;">
+            <strong>${escHtml(p.booking_id)}</strong><br/>
+            <span style="color:var(--text-muted);font-size:10.5px;">${escHtml(p.txn_id)}</span>
+          </td>
+          <td style="max-width:160px;">
+            <strong>${escHtml(title)}</strong><br/>
+            <span style="font-size:11px;color:var(--text-muted);">${escHtml(p.prop_location || '—').substring(0,30)}</span>
+          </td>
+          <td>${typeBadge}</td>
+          <td><strong>${escHtml(p.buyer_name)}</strong></td>
+          <td style="white-space:nowrap;">${escHtml(p.buyer_mobile)}</td>
+          <td style="font-size:12px;">${escHtml(p.buyer_email)}</td>
+          <td style="font-family:monospace;font-size:12px;">${escHtml(p.buyer_pan)}</td>
+          <td style="white-space:nowrap;font-weight:700;color:var(--primary);">${escHtml(p.price_total)}</td>
+          <td style="font-size:12px;">${escHtml(method)}</td>
+          <td style="white-space:nowrap;font-size:12px;">${dateStr}<br/><span style="color:var(--text-muted)">${timeStr}</span></td>
+          <td><span class="badge badge-active">✅ ${escHtml(p.pay_status)}</span></td>
+        </tr>`;
+      });
+
+      $body.html(html);
+    });
+  }
+
+  /* ── 14. Utility: format number as Indian money ───────────────── */
+  function formatMoney(num) {
+    num = parseFloat(num) || 0;
+    if (num >= 10000000)  return (num / 10000000).toFixed(2) + ' Cr';
+    if (num >= 100000)    return (num / 100000).toFixed(2) + ' L';
+    return num.toLocaleString('en-IN');
+  }
+
+  /* ── 15. Utility: show toast notification ────────────────────── */
+  function showToast(msg, type) {
+    const $t = $('#toast');
+    $t.removeClass('toast-success toast-error show')
+      .addClass(type === 'success' ? 'toast-success' : 'toast-error')
+      .text(msg);
+    setTimeout(() => $t.addClass('show'), 10);
+    setTimeout(() => $t.removeClass('show'), 3500);
+  }
+
+  /* ── 16. Utility: escape HTML to prevent XSS ─────────────────── */
+  function escHtml(str) {
+    return $('<div>').text(str || '').html();
+  }
+
+  /* ── 17. Load submissions panel ──────────────────────────────── */
+  window.loadSubmissions = function(status) {
+    status = status || 'pending';
+
+    // Highlight active filter button
+    ['pending','approved','rejected','all'].forEach(function(s) {
+      var $btn = $('#subFilter' + s.charAt(0).toUpperCase() + s.slice(1));
+      if (s === status) {
+        $btn.css({ background: 'var(--primary)', color: '#fff', border: '1px solid var(--primary)' });
+      } else {
+        $btn.css({ background: 'var(--bg)', color: 'var(--text)', border: '1px solid var(--border)' });
+      }
+    });
+
+    $('#submissionsGrid').html('<div style="text-align:center;color:var(--text-muted);padding:40px;grid-column:1/-1;">Loading…</div>');
+
+    $.get('../api/listings_admin.php?action=list&status=' + status, function(res) {
+      if (!res.success) {
+        $('#submissionsGrid').html('<div style="text-align:center;color:var(--text-muted);padding:40px;grid-column:1/-1;">Failed to load submissions.</div>');
+        return;
+      }
+
+      // Update sidebar badge with pending count
+      if (status === 'pending') {
+        var cnt = res.listings.length;
+        if (cnt > 0) {
+          $('#pendingBadge').text(cnt).show();
+        } else {
+          $('#pendingBadge').hide();
+        }
+      }
+
+      if (!res.listings.length) {
+        $('#submissionsGrid').html('<div style="text-align:center;color:var(--text-muted);padding:40px;grid-column:1/-1;">No ' + status + ' submissions found.</div>');
+        return;
+      }
+
+      var html = '';
+      res.listings.forEach(function(l) {
+        var photos = [];
+        try { photos = JSON.parse(l.photos || '[]'); } catch(e) {}
+        var imgHtml = photos.length
+          ? '<img src="../' + escHtml(photos[0]) + '" style="width:100%;height:180px;object-fit:cover;" onerror="this.src=\'../images/apartment.jpg\'">'
+          : '<div style="width:100%;height:180px;background:var(--border-light);display:flex;align-items:center;justify-content:center;color:var(--text-muted);font-size:13px;">📷 No photos</div>';
+
+        var statusBadge = {
+          pending:  '<span style="background:#f59e0b;color:#fff;padding:2px 10px;border-radius:10px;font-size:11px;font-weight:700;">⏳ Pending</span>',
+          approved: '<span style="background:#16a34a;color:#fff;padding:2px 10px;border-radius:10px;font-size:11px;font-weight:700;">✅ Approved</span>',
+          rejected: '<span style="background:#ef4444;color:#fff;padding:2px 10px;border-radius:10px;font-size:11px;font-weight:700;">❌ Rejected</span>',
+        }[l.status] || '<span>' + escHtml(l.status) + '</span>';
+
+        var actionBtns = l.status === 'pending' ? `
+          <button onclick="approveSubmission(${l.id})" style="flex:1;padding:8px;background:#16a34a;color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:700;font-size:13px;">✅ Approve & Publish</button>
+          <button onclick="rejectSubmission(${l.id})"  style="flex:1;padding:8px;background:#ef4444;color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:700;font-size:13px;">❌ Reject</button>
+        ` : '';
+
+        var price = parseFloat(l.price);
+        var priceStr = isNaN(price) ? '—' : '₹ ' + formatMoney(price);
+
+        html += `
+          <div style="background:var(--card-bg,#fff);border:1px solid var(--border);border-radius:14px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+            <div style="position:relative;cursor:pointer;" onclick="viewSubmission(${l.id})">
+              ${imgHtml}
+              <div style="position:absolute;top:10px;left:10px;">${statusBadge}</div>
+              ${photos.length > 1 ? '<div style="position:absolute;bottom:8px;right:10px;background:rgba(0,0,0,0.6);color:#fff;font-size:11px;padding:2px 8px;border-radius:10px;">+' + (photos.length-1) + ' more</div>' : ''}
+            </div>
+            <div style="padding:14px;">
+              <div style="font-weight:800;font-size:15px;margin-bottom:4px;">${escHtml(l.title)}</div>
+              <div style="font-size:13px;color:var(--text-muted);margin-bottom:6px;">📍 ${escHtml(l.address)}</div>
+              <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;font-size:12px;">
+                <span style="background:var(--border-light);padding:2px 8px;border-radius:6px;">${escHtml(l.property_type)}</span>
+                <span style="background:var(--border-light);padding:2px 8px;border-radius:6px;">${escHtml(l.listing_type)}</span>
+                ${l.bhk ? '<span style="background:var(--border-light);padding:2px 8px;border-radius:6px;">' + escHtml(l.bhk) + '</span>' : ''}
+                ${l.total_area ? '<span style="background:var(--border-light);padding:2px 8px;border-radius:6px;">' + l.total_area + ' sqft</span>' : ''}
+              </div>
+              <div style="font-size:18px;font-weight:800;color:var(--primary);margin-bottom:8px;">${priceStr}</div>
+              <div style="font-size:12px;color:var(--text-muted);margin-bottom:12px;">
+                👤 ${escHtml(l.owner_name || '—')} &nbsp;|&nbsp; 📞 ${escHtml(l.owner_phone || '—')}<br/>
+                🕒 ${new Date(l.created_at).toLocaleString('en-IN',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'})}
+              </div>
+              <div style="display:flex;gap:8px;">
+                <button onclick="viewSubmission(${l.id})" style="flex:1;padding:8px;background:var(--border-light);color:var(--text);border:none;border-radius:8px;cursor:pointer;font-size:13px;">🔍 View Details</button>
+                ${actionBtns}
+              </div>
+            </div>
+          </div>`;
+      });
+
+      $('#submissionsGrid').html(html);
+    }).fail(function() {
+      $('#submissionsGrid').html('<div style="text-align:center;color:var(--text-muted);padding:40px;grid-column:1/-1;">Error loading submissions.</div>');
+    });
+  };
+
+  /* View full submission detail modal */
+  window.viewSubmission = function(id) {
+    $.get('../api/listings_admin.php?action=list&status=all', function(res) {
+      if (!res.success) return;
+      var l = res.listings.find(function(x) { return x.id == id; });
+      if (!l) return;
+
+      var photos = [];
+      try { photos = JSON.parse(l.photos || '[]'); } catch(e) {}
+
+      var photosHtml = photos.length
+        ? '<div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px;">' +
+            photos.map(function(p) {
+              return '<img src="../' + escHtml(p) + '" style="width:120px;height:90px;object-fit:cover;border-radius:8px;border:2px solid var(--border);" onerror="this.src=\'../images/apartment.jpg\'">';
+            }).join('') + '</div>'
+        : '<p style="color:var(--text-muted);font-size:13px;margin-bottom:16px;">No photos uploaded.</p>';
+
+      var price = parseFloat(l.price);
+      var priceStr = isNaN(price) ? '—' : '₹ ' + formatMoney(price);
+
+      var statusBadge = {
+        pending:  '<span style="background:#f59e0b;color:#fff;padding:3px 12px;border-radius:10px;font-size:12px;font-weight:700;">⏳ Pending Review</span>',
+        approved: '<span style="background:#16a34a;color:#fff;padding:3px 12px;border-radius:10px;font-size:12px;font-weight:700;">✅ Approved & Published</span>',
+        rejected: '<span style="background:#ef4444;color:#fff;padding:3px 12px;border-radius:10px;font-size:12px;font-weight:700;">❌ Rejected</span>',
+      }[l.status] || l.status;
+
+      var actionBtns = l.status === 'pending' ? `
+        <div style="display:flex;gap:10px;margin-top:20px;">
+          <button onclick="approveSubmission(${l.id});$('#submissionModal').hide();" style="flex:1;padding:10px;background:#16a34a;color:#fff;border:none;border-radius:10px;cursor:pointer;font-weight:700;font-size:14px;">✅ Approve & Publish</button>
+          <button onclick="rejectSubmission(${l.id});$('#submissionModal').hide();"  style="flex:1;padding:10px;background:#ef4444;color:#fff;border:none;border-radius:10px;cursor:pointer;font-weight:700;font-size:14px;">❌ Reject</button>
+        </div>` : '';
+
+      var row = function(label, val) {
+        return val ? '<tr><td style="padding:6px 12px 6px 0;font-size:13px;color:var(--text-muted);white-space:nowrap;font-weight:600;">' + label + '</td><td style="padding:6px 0;font-size:13px;">' + escHtml(String(val)) + '</td></tr>' : '';
+      };
+
+      $('#submissionModalBody').html(`
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px;">
+          <div>
+            <h2 style="margin:0;font-size:17px;">${escHtml(l.title)}</h2>
+            <div style="margin-top:6px;">${statusBadge}</div>
+          </div>
+          <div style="font-size:22px;font-weight:800;color:var(--primary);">${priceStr}</div>
+        </div>
+        <div style="margin-bottom:16px;">
+          <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);margin-bottom:8px;">📸 Photos</div>
+          ${photosHtml}
+        </div>
+        <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);margin-bottom:10px;">📋 Property Details</div>
+        <table style="width:100%;border-collapse:collapse;margin-bottom:4px;">
+          ${row('Property Type', l.property_type)}
+          ${row('Listing Type', l.listing_type)}
+          ${row('BHK', l.bhk)}
+          ${row('Total Area', l.total_area ? l.total_area + ' sqft' : null)}
+          ${row('Furnishing', l.furnishing)}
+          ${row('Address', l.address)}
+          ${row('City', l.city)}
+          ${row('Description', l.description)}
+        </table>
+        <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);margin:16px 0 10px;">👤 Owner / Contact</div>
+        <table style="width:100%;border-collapse:collapse;">
+          ${row('Name', l.owner_name)}
+          ${row('Phone', l.owner_phone)}
+          ${row('Submitted', new Date(l.created_at).toLocaleString('en-IN'))}
+        </table>
+        ${actionBtns}
+      `);
+
+      $('#submissionModal').show();
+    });
+  };
+
+  /* Approve submission */
+  window.approveSubmission = function(id) {
+    if (!confirm('Approve this listing and publish it on the website?')) return;
+    $.ajax({
+      url: '../api/listings_admin.php?action=approve',
+      method: 'POST',
+      contentType: 'application/json',
+      data: JSON.stringify({ id: id }),
+      success: function(res) {
+        showToast(res.success ? '✅ Property published successfully!' : '❌ ' + res.message, res.success ? 'success' : 'error');
+        if (res.success) { loadSubmissions('pending'); loadStats(); }
+      }
+    });
+  };
+
+  /* Reject submission */
+  window.rejectSubmission = function(id) {
+    if (!confirm('Reject this listing?')) return;
+    $.ajax({
+      url: '../api/listings_admin.php?action=reject',
+      method: 'POST',
+      contentType: 'application/json',
+      data: JSON.stringify({ id: id }),
+      success: function(res) {
+        showToast(res.success ? 'Listing rejected.' : '❌ ' + res.message, res.success ? 'success' : 'error');
+        if (res.success) loadSubmissions('pending');
+      }
+    });
+  };
+
+  // Show pending badge on load
+  $.get('../api/listings_admin.php?action=list&status=pending', function(res) {
+    if (res.success && res.listings.length > 0) {
+      $('#pendingBadge').text(res.listings.length).show();
+    }
+  });
+
+});
+</script>
+</body>
+</html>

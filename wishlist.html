@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>My Wishlist — NestFind</title>
+  <link rel="stylesheet" href="style.css"/>
+  <style>
+    .wishlist-empty{text-align:center;padding:80px 20px;}
+    .wishlist-empty .empty-icon{font-size:64px;margin-bottom:16px;}
+    .wishlist-empty h2{font-size:22px;color:var(--text);margin-bottom:10px;}
+    .wishlist-empty p{color:var(--text-muted);font-size:14px;margin-bottom:24px;}
+    .wl-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:20px;margin-top:24px;}
+    .wl-card{background:#fff;border:1.5px solid var(--border);border-radius:12px;overflow:hidden;}
+    .wl-card-img{width:100%;height:160px;background:var(--primary-light);display:flex;align-items:center;justify-content:center;font-size:48px;}
+    .wl-card-body{padding:16px;}
+    .wl-card-title{font-weight:800;font-size:15px;color:var(--text);margin-bottom:6px;}
+    .wl-card-meta{font-size:13px;color:var(--text-muted);margin-bottom:4px;}
+    .wl-card-price{font-size:18px;font-weight:800;color:var(--primary);margin:10px 0;}
+    .wl-badge{display:inline-block;background:var(--primary-light);color:var(--primary);border-radius:4px;padding:2px 8px;font-size:11px;font-weight:700;margin-bottom:10px;}
+    .wl-remove{background:none;border:1.5px solid #e53e3e;color:#e53e3e;border-radius:6px;padding:7px 14px;font-size:13px;font-weight:700;cursor:pointer;}
+    .wl-remove:hover{background:#fff5f5;}
+    .wl-count{font-size:14px;color:var(--text-muted);margin-top:4px;}
+  </style>
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="nav-inner">
+    <a href="index.html" class="logo">
+      <span class="logo-icon"><img style="width:40px;height:40px;" src="images/logo.png" alt="NestFind Logo"></span>
+      Nest<span>Find</span>
+    </a>
+    <div class="nav-links">
+      <a href="index.html" class="nav-link">Home</a>
+      <a href="buy.html" class="nav-link">Buy</a>
+      <a href="rent.html" class="nav-link">Rent</a>
+      <a href="sell.html" class="nav-link">Sell</a>
+      <a href="about.html" class="nav-link">About</a>
+    </div>
+    <div class="nav-actions">
+      <a href="login.html" class="btn-outline">Login</a>
+      <a href="signup.html" class="btn-primary">Sign Up</a>
+    </div>
+  </div>
+</nav>
+
+<div class="page-hero">
+  <div class="container">
+    <h1>❤️ My Wishlist</h1>
+    <p>Properties you've saved for later.</p>
+  </div>
+</div>
+
+<div class="container" style="padding:40px 0 60px;">
+  <div id="wl-content">
+    <div class="wishlist-empty">
+      <div class="empty-icon">⏳</div>
+      <h2>Loading...</h2>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-bottom">
+      <p>© 2025 NestFind Technologies Pvt. Ltd. All rights reserved.</p>
+    </div>
+  </div>
+</footer>
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="script.js"></script>
+<script>
+$(document).ready(function() {
+
+  // Check login
+  var user = null;
+  try { user = JSON.parse(localStorage.getItem('nf_user') || 'null'); } catch(e) {}
+
+  if (!user) {
+    $('#wl-content').html(
+      '<div class="wishlist-empty">' +
+        '<div class="empty-icon">🔒</div>' +
+        '<h2>Please login first</h2>' +
+        '<p>You need to be logged in to view your wishlist.</p>' +
+        '<a href="login.html" class="btn-primary" style="display:inline-block;padding:12px 28px;">Login</a>' +
+      '</div>'
+    );
+    return;
+  }
+
+  // Load wishlist keys from localStorage
+  var wlKey = 'nf_wishlist_' + user.name;
+  var wishlist = {};
+  try { wishlist = JSON.parse(localStorage.getItem(wlKey) || '{}'); } catch(e) {}
+
+  // Merge guest wishlist
+  var guestWl = {};
+  try { guestWl = JSON.parse(localStorage.getItem('nf_wishlist_guest') || '{}'); } catch(e) {}
+  Object.assign(wishlist, guestWl);
+
+  // Collect all saved numeric DB ids (strip db_ prefix)
+  var savedKeys = Object.keys(wishlist).filter(function(k){ return wishlist[k]; });
+
+  if (savedKeys.length === 0) { showEmpty(); return; }
+
+  // Extract numeric IDs — all our DB props are saved as db_N or N
+  var savedNumericIds = savedKeys.map(function(k){
+    return String(k).replace('db_', '');
+  }).filter(function(k){ return /^\d+$/.test(k); });
+
+  if (savedNumericIds.length === 0) { showEmpty(); return; }
+
+  // Always fetch ALL properties fresh from DB — match by id
+  fetch('api/properties.php?action=list')
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      var allProps = data.properties || [];
+
+      var matched = allProps.filter(function(p){
+        return savedNumericIds.indexOf(String(p.id)) !== -1;
+      });
+
+      render(matched);
+    })
+    .catch(function(){
+      $('#wl-content').html('<div class="wishlist-empty"><div class="empty-icon">⚠️</div><h2>Could not load properties</h2><p>Please check your server is running.</p></div>');
+    });
+
+  function formatPriceLocal(val, type) {
+    var n = parseFloat(val);
+    if (isNaN(n)) return val || '—';
+    var s;
+    if (n >= 10000000)      s = (n/10000000).toFixed(2).replace(/\.?0+$/,'') + ' Cr';
+    else if (n >= 100000)   s = (n/100000).toFixed(2).replace(/\.?0+$/,'') + ' L';
+    else                    s = n.toLocaleString('en-IN');
+    return '₹' + s + (type === 'Rent' ? '/mo' : '');
+  }
+
+  function showEmpty() {
+    $('#wl-content').html(
+      '<div class="wishlist-empty">' +
+        '<div class="empty-icon">💔</div>' +
+        '<h2>No saved properties yet</h2>' +
+        '<p>Click the ❤️ on any property card to save it here.</p>' +
+        '<a href="buy.html" class="btn-primary" style="display:inline-block;padding:12px 28px;">Browse Properties</a>' +
+      '</div>'
+    );
+  }
+
+  function render(props) {
+    if (!props.length) { showEmpty(); return; }
+
+    var html = '<h2 style="font-size:18px;font-weight:800;color:var(--text);margin-bottom:4px;">Saved Properties</h2>';
+    html += '<div class="wl-count">' + props.length + ' propert' + (props.length === 1 ? 'y' : 'ies') + ' saved</div>';
+    html += '<div class="wl-grid">';
+
+    props.forEach(function(p) {
+      var key      = 'db_' + p.id;
+      var price    = formatPriceLocal(p.price, p.property_type);
+      var imgSrc   = p.image || '';
+      var imgHtml  = imgSrc
+        ? '<img src="' + imgSrc + '" style="width:100%;height:100%;object-fit:cover;display:block;" onerror="this.parentNode.innerHTML=\'🏠\'">'
+        : '🏠';
+      var badge    = p.property_type === 'Rent' ? 'For Rent' : 'For Sale';
+      var bedsText = p.bedrooms || '';
+      var areaText = p.area || '';
+
+      html +=
+        '<div class="wl-card" data-id="' + key + '">' +
+          '<div class="wl-card-img" style="padding:0;overflow:hidden;">' + imgHtml + '</div>' +
+          '<div class="wl-card-body">' +
+            '<div class="wl-badge">' + badge + '</div>' +
+            '<div class="wl-card-title">' + (p.title || '—') + '</div>' +
+            '<div class="wl-card-meta">📍 ' + (p.location || '—') + '</div>' +
+            (bedsText ? '<div class="wl-card-meta">🛏 ' + bedsText + (areaText ? ' &nbsp;·&nbsp; 📐 ' + areaText : '') + '</div>' : '') +
+            '<div class="wl-card-price">' + price + '</div>' +
+            '<button class="wl-remove" data-id="' + key + '">🗑 Remove</button>' +
+          '</div>' +
+        '</div>';
+    });
+
+    html += '</div>';
+    $('#wl-content').html(html);
+  }
+
+  // Remove button
+  $(document).on('click', '.wl-remove', function(){
+    var id  = $(this).data('id');
+    var wl  = {};
+    try { wl = JSON.parse(localStorage.getItem(wlKey) || '{}'); } catch(e) {}
+    delete wl[String(id)];
+    localStorage.setItem(wlKey, JSON.stringify(wl));
+    $('[data-id="' + id + '"].wl-card').fadeOut(300, function(){
+      $(this).remove();
+      if ($('.wl-card').length === 0) showEmpty();
+    });
+  });
+
+});
+</script>
+</body>
+</html>
